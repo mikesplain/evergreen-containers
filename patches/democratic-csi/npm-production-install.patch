@@ -1,0 +1,9 @@
+diff --git a/Dockerfile b/Dockerfile
+index 7a62c72..99fa065 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -70,3 +70,3 @@ ENV RE2_DOWNLOAD_SKIP_PATH=1
+ COPY --chown=csi:csi package*.json ./
+-RUN npm install --only=production --grpc_node_binary_host_mirror=https://grpc-uds-binaries.s3-us-west-2.amazonaws.com/debian-buster
++RUN npm ci --omit=dev --omit=optional --grpc_node_binary_host_mirror=https://grpc-uds-binaries.s3-us-west-2.amazonaws.com/debian-buster
+ COPY --chown=csi:csi . .

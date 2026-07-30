@@ -44,8 +44,8 @@ upstream upgrades as separate responsibilities.
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation implements pinned-source rebuilds using the upstream project's
-Dockerfile. Reviewed catalog build arguments and source patches may refresh
-packaging dependencies without carrying a downstream Dockerfile. A
+Dockerfile. Reviewed catalog build arguments, file overlays, and source patches
+may refresh packaging dependencies without carrying a downstream Dockerfile. A
 Dockerfile-free OS-package patch mode based on
 [Copacetic](https://project-copacetic.github.io/copacetic/) is planned after
 the first image proves the release model.

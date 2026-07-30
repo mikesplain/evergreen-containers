@@ -64,3 +64,24 @@ test("prepare-source rejects paths outside the patch directory", () => {
     rmSync(source, { recursive: true, force: true });
   }
 });
+
+test("prepare-source copies catalog overlays into the source checkout", () => {
+  const source = mkdtempSync(path.join(os.tmpdir(), "evergreen-source-"));
+  try {
+    const result = spawnSync("node", ["scripts/prepare-source.mjs", source], {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        EVERGREEN_OVERLAYS: '["overlays/democratic-csi/package.json"]'
+      }
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    const packageJson = JSON.parse(readFileSync(path.join(source, "package.json"), "utf8"));
+    assert.equal(packageJson.dependencies["@kubernetes/client-node"], "^0.22.3");
+    assert.equal(packageJson.dependencies.uuid, "^11.1.1");
+  } finally {
+    rmSync(source, { recursive: true, force: true });
+  }
+});

@@ -58,10 +58,15 @@
           "YQ_VERSION": "v4.53.3",
           "CTR_VERSION": "v2.3.3"
         },
+        "overlays": [
+          "overlays/democratic-csi/package.json",
+          "overlays/democratic-csi/package-lock.json"
+        ],
         "patches": [
           "patches/democratic-csi/node-24.patch",
           "patches/democratic-csi/re2-build-deps.patch",
-          "patches/democratic-csi/ctr-official-release.patch"
+          "patches/democratic-csi/ctr-official-release.patch",
+          "patches/democratic-csi/npm-production-install.patch"
         ]
       },
       "output": {

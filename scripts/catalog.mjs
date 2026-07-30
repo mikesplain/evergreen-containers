@@ -24,6 +24,7 @@ function requireString(value, field, errors) {
 function buildConfiguration(image) {
   const build = image.build ?? {};
   const args = build.args ?? {};
+  const overlays = build.overlays ?? [];
   const patches = build.patches ?? [];
 
   return {
@@ -31,8 +32,11 @@ function buildConfiguration(image) {
       .sort(([left], [right]) => left.localeCompare(right))
       .map(([name, value]) => `${name}=${value}`)
       .join("\n"),
+    hasOverlays: overlays.length > 0,
     hasPatches: patches.length > 0,
-    modifiedBuild: Object.keys(args).length > 0 || patches.length > 0,
+    modifiedBuild:
+      Object.keys(args).length > 0 || overlays.length > 0 || patches.length > 0,
+    overlays: JSON.stringify(overlays),
     patches: JSON.stringify(patches)
   };
 }
@@ -113,6 +117,34 @@ export function validateCatalog(catalog, root = process.cwd()) {
           if (typeof value === "string" && !BUILD_ARG_VALUE_PATTERN.test(value)) {
             errors.push(`${prefix}.build.args.${name} contains unsupported characters`);
           }
+        }
+      }
+    }
+    if (build.overlays !== undefined) {
+      if (!Array.isArray(build.overlays)) {
+        errors.push(`${prefix}.build.overlays must be an array`);
+      } else {
+        const overlayPaths = new Set();
+        for (const [overlayIndex, overlay] of build.overlays.entries()) {
+          const field = `${prefix}.build.overlays[${overlayIndex}]`;
+          requireString(overlay, field, errors);
+          if (
+            typeof overlay === "string" &&
+            (!overlay.startsWith(`overlays/${image.name}/`) ||
+              overlay === `overlays/${image.name}/` ||
+              path.isAbsolute(overlay) ||
+              overlay.split("/").includes("..") ||
+              !fs.existsSync(path.join(root, overlay)) ||
+              !fs.statSync(path.join(root, overlay)).isFile())
+          ) {
+            errors.push(
+              `${field} must reference an existing file under overlays/${image.name}/`
+            );
+          }
+          if (overlayPaths.has(overlay)) {
+            errors.push(`${field} duplicates ${overlay}`);
+          }
+          overlayPaths.add(overlay);
         }
       }
     }
@@ -240,8 +272,10 @@ export function verificationMatrix(catalog, releaseEnabledOnly = false) {
           context: image.upstream.context,
           dockerfile: image.upstream.dockerfile,
           buildArgs: build.buildArgs,
+          hasOverlays: build.hasOverlays,
           hasPatches: build.hasPatches,
           modifiedBuild: build.modifiedBuild,
+          overlays: build.overlays,
           patches: build.patches,
           testScript: image.test.script,
           timeoutSeconds: image.test.timeoutSeconds,
@@ -268,8 +302,10 @@ export function publicationMatrix(catalog) {
         context: image.upstream.context,
         dockerfile: image.upstream.dockerfile,
         buildArgs: build.buildArgs,
+        hasOverlays: build.hasOverlays,
         hasPatches: build.hasPatches,
         modifiedBuild: build.modifiedBuild,
+        overlays: build.overlays,
         patches: build.patches,
         outputImage: image.output.image,
         platforms: image.platforms.join(","),

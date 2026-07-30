@@ -11,23 +11,29 @@ if (!source) {
   process.exit(2);
 }
 
-let patches;
-try {
-  patches = JSON.parse(process.env.EVERGREEN_PATCHES ?? "[]");
-} catch {
-  console.error("EVERGREEN_PATCHES must be a JSON array");
-  process.exit(2);
+function parsePathList(name) {
+  let value;
+  try {
+    value = JSON.parse(process.env[name] ?? "[]");
+  } catch {
+    console.error(`${name} must be a JSON array`);
+    process.exit(2);
+  }
+  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
+    console.error(`${name} must be a JSON array of paths`);
+    process.exit(2);
+  }
+  return value;
 }
 
-if (!Array.isArray(patches) || patches.some((patch) => typeof patch !== "string")) {
-  console.error("EVERGREEN_PATCHES must be a JSON array of paths");
-  process.exit(2);
-}
-
+const overlays = parsePathList("EVERGREEN_OVERLAYS");
+const patches = parsePathList("EVERGREEN_PATCHES");
 const repositoryRoot = fs.realpathSync(
   path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 );
 const patchesRoot = fs.realpathSync(path.join(repositoryRoot, "patches")) + path.sep;
+const overlaysRoot = fs.realpathSync(path.join(repositoryRoot, "overlays")) + path.sep;
+const sourceRoot = fs.realpathSync(source) + path.sep;
 
 for (const patch of patches) {
   let patchPath;
@@ -56,4 +62,29 @@ for (const patch of patches) {
   }
 
   console.log(`Applied ${patch}`);
+}
+
+for (const overlay of overlays) {
+  let overlayPath;
+  try {
+    overlayPath = fs.realpathSync(path.resolve(repositoryRoot, overlay));
+  } catch {
+    console.error(`Overlay does not exist: ${overlay}`);
+    process.exit(2);
+  }
+  if (!overlayPath.startsWith(overlaysRoot)) {
+    console.error(`Overlay escapes the overlays directory: ${overlay}`);
+    process.exit(2);
+  }
+
+  const relativeDestination = overlay.split("/").slice(2).join("/");
+  const destination = path.resolve(sourceRoot, relativeDestination);
+  if (!relativeDestination || !destination.startsWith(sourceRoot)) {
+    console.error(`Overlay destination escapes the source directory: ${overlay}`);
+    process.exit(2);
+  }
+
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(overlayPath, destination);
+  console.log(`Overlaid ${overlay} at ${relativeDestination}`);
 }

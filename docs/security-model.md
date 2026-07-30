@@ -25,11 +25,13 @@ The project does not guarantee that:
 - an image is safe to run without normal Kubernetes or container hardening;
 - application-level dependencies are repaired by an unchanged source rebuild.
 
-Catalog-controlled build arguments and source patches are part of the trusted
-Evergreen build input. Patches are stored in this repository, applied only to a
-full upstream source commit, and covered by the workflow's provenance. They are
-reserved for packaging and dependency remediation; application behavior remains
-anchored by the upstream source pin and contract test.
+Catalog-controlled build arguments, file overlays, and source patches are part
+of the trusted Evergreen build input. They are stored in this repository,
+applied only to a full upstream source commit, and covered by the workflow's
+provenance. Paths are constrained to the matching image's `overlays/` or
+`patches/` directory. These inputs are reserved for packaging and dependency
+remediation; application behavior remains anchored by the upstream source pin
+and contract test.
 
 ## Workflow separation
 

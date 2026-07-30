@@ -73,12 +73,18 @@ test("build overrides and patches are rendered for verification", () => {
 
   assert.match(democraticCsi.buildArgs, /^CTR_VERSION=v2\.3\.3/m);
   assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.74\.4/m);
+  assert.equal(democraticCsi.hasOverlays, true);
   assert.equal(democraticCsi.hasPatches, true);
   assert.equal(democraticCsi.modifiedBuild, true);
+  assert.deepEqual(JSON.parse(democraticCsi.overlays), [
+    "overlays/democratic-csi/package.json",
+    "overlays/democratic-csi/package-lock.json"
+  ]);
   assert.deepEqual(JSON.parse(democraticCsi.patches), [
     "patches/democratic-csi/node-24.patch",
     "patches/democratic-csi/re2-build-deps.patch",
-    "patches/democratic-csi/ctr-official-release.patch"
+    "patches/democratic-csi/ctr-official-release.patch",
+    "patches/democratic-csi/npm-production-install.patch"
   ]);
 });
 
@@ -98,6 +104,17 @@ test("missing or escaping patch paths are rejected", () => {
   assert.ok(
     validateCatalog(catalog).some((error) =>
       error.includes("must reference an existing .patch file")
+    )
+  );
+});
+
+test("missing or escaping overlay paths are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.overlays = ["../outside.json"];
+
+  assert.ok(
+    validateCatalog(catalog).some((error) =>
+      error.includes("must reference an existing file")
     )
   );
 });
