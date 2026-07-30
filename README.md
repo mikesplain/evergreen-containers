@@ -37,7 +37,7 @@ upstream upgrades as separate responsibilities.
 
 | Image | Mode | Upstream | Platforms | Status |
 | --- | --- | --- | --- | --- |
-| Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | Initial candidate |
+| Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 fixable High/Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30557959456) |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation currently implements exact-source rebuilds using the upstream
