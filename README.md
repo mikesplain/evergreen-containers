@@ -39,6 +39,8 @@ upstream upgrades as separate responsibilities.
 | Image | Mode | Upstream | Platforms | Status |
 | --- | --- | --- | --- | --- |
 | Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686) |
+| democratic-csi | Exact-source rebuild | [`v1.9.5`](https://github.com/democratic-csi/democratic-csi/tree/v1.9.5) | `linux/amd64`, `linux/arm64` | Candidate validation |
+| Sockpuppet Browser | Exact-source rebuild | [`0.0.3`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.3) | `linux/amd64`, `linux/arm64` | Candidate validation; Chromium 119 blocks promotion |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation currently implements exact-source rebuilds using the upstream
@@ -51,10 +53,19 @@ reports beyond its standard-support lifecycle boundary. Weekly rebuilds reduce
 available package risk but are an interim control; [issue #7](https://github.com/mikesplain/evergreen-containers/issues/7)
 tracks lifecycle enforcement and migration to a supported base.
 
+Sockpuppet Browser's current upstream Dockerfile pins
+`zenika/alpine-chrome:119-with-playwright`. Candidate automation measures and
+tests that exact source, but the image must not be promoted for consumption
+until its Chromium base is updated and the resulting vulnerability budget is
+reviewed.
+
 ## Release model
 
 - Weekly releases run from protected `main`; maintainers can also dispatch one
   manually.
+- Pull requests that change catalog, workflow, script, or test inputs run the
+  same native candidate builds, contract tests, and vulnerability comparison
+  without package or attestation write permissions.
 - Application source is pinned to a full upstream commit. Weekly jobs do not
   silently adopt new application code.
 - Base images and package repositories are refreshed with BuildKit

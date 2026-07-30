@@ -18,6 +18,9 @@
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
       },
+      "release": {
+        "enabled": true
+      },
       "platforms": [
         "linux/amd64",
         "linux/arm64"
@@ -31,6 +34,78 @@
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
         "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686"
+      }
+    },
+    {
+      "name": "democratic-csi",
+      "description": "CSI storage driver framework for Kubernetes",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/democratic-csi/democratic-csi:v1.9.5",
+        "sourceRepository": "democratic-csi/democratic-csi",
+        "sourceTag": "v1.9.5",
+        "sourceCommit": "b5be00c0748cbae251e661392cc7ab9fea335ac9",
+        "version": "v1.9.5",
+        "license": "MIT",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Candidate build, contract, and scan evidence has not completed."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/democratic-csi.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 339,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-07-30",
+        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
+      }
+    },
+    {
+      "name": "sockpuppetbrowser",
+      "description": "Chrome DevTools Protocol proxy for browser automation",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "docker.io/dgtlmoon/sockpuppetbrowser:0.0.3",
+        "sourceRepository": "dgtlmoon/sockpuppetbrowser",
+        "sourceTag": "0.0.3",
+        "sourceCommit": "03fea0bcaf7ceb29b6c8f3b205268e565fd2f0a2",
+        "version": "0.0.3",
+        "license": "Apache-2.0",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Upstream source pins Chromium 119 and is not suitable for promotion."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/sockpuppetbrowser.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 84,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-07-30",
+        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
       }
     }
   ]

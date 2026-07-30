@@ -20,6 +20,12 @@ Accepted images add one entry to `catalog/images.json` and one test under
 `tests/`. Exact-source rebuilds use the upstream Dockerfile and should not add a
 local Dockerfile.
 
+New entries start with `release.enabled: false` and a concrete
+`release.blockedReason`. Pull requests still build, contract-test, and scan
+release-disabled candidates on every declared platform. Enable publication only
+after that evidence is reviewed; disabled candidates are excluded from weekly
+release verification and publication so they cannot block active images.
+
 ## Local validation
 
 ```sh
