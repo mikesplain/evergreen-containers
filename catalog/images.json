@@ -73,8 +73,7 @@
         "image": "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
       },
       "release": {
-        "enabled": false,
-        "blockedReason": "Remediated candidate is awaiting reviewed multi-platform scan evidence."
+        "enabled": true
       },
       "platforms": [
         "linux/amd64",
@@ -85,10 +84,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 339,
+        "maxFixableHighCritical": 9,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30573110554"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319"
       }
     },
     {
