@@ -1,0 +1,239 @@
+name: Weekly releases
+
+on:
+  schedule:
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-releases
+  cancel-in-progress: false
+
+jobs:
+  catalog:
+    runs-on: ubuntu-24.04
+    outputs:
+      verify: ${{ steps.matrix.outputs.verify }}
+      publish: ${{ steps.matrix.outputs.publish }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate catalog
+        run: node scripts/validate-catalog.mjs
+
+      - name: Verify pinned upstream tags
+        run: |
+          node -e '
+            const { spawnSync } = require("node:child_process");
+            const catalog = require("./catalog/images.json");
+            for (const image of catalog.images) {
+              const source = image.upstream;
+              const result = spawnSync(
+                "node",
+                [
+                  "scripts/verify-source-ref.mjs",
+                  source.sourceRepository,
+                  source.sourceTag,
+                  source.sourceCommit
+                ],
+                { stdio: "inherit" }
+              );
+              if (result.status !== 0) process.exit(result.status);
+            }
+          '
+
+      - name: Render matrices
+        id: matrix
+        run: |
+          echo "verify=$(node scripts/render-matrix.mjs verify)" >> "$GITHUB_OUTPUT"
+          echo "publish=$(node scripts/render-matrix.mjs publish)" >> "$GITHUB_OUTPUT"
+
+  verify:
+    needs: catalog
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.catalog.outputs.verify) }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Evergreen Containers
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: evergreen
+          persist-credentials: false
+
+      - name: Checkout pinned upstream source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ matrix.sourceRepository }}
+          ref: ${{ matrix.sourceCommit }}
+          path: source
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Pull upstream platform
+        env:
+          PLATFORM: ${{ matrix.platform }}
+          UPSTREAM_IMAGE: ${{ matrix.upstreamImage }}
+          UPSTREAM_SCAN_IMAGE: evergreen-upstream:${{ matrix.name }}-${{ matrix.platformSlug }}
+        run: |
+          docker pull --platform "$PLATFORM" "$UPSTREAM_IMAGE"
+          docker tag "$UPSTREAM_IMAGE" "$UPSTREAM_SCAN_IMAGE"
+
+      - name: Build candidate platform
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: source/${{ matrix.context }}
+          file: source/${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platform }}
+          tags: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
+          pull: true
+          no-cache: true
+          load: true
+          push: false
+          provenance: false
+          sbom: false
+
+      - name: Run contract test
+        env:
+          IMAGE: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
+          TIMEOUT_SECONDS: ${{ matrix.timeoutSeconds }}
+        run: evergreen/${{ matrix.testScript }}
+
+      - name: Prepare scan reports
+        run: mkdir -p reports
+
+      - name: Scan upstream
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7
+        with:
+          image: evergreen-upstream:${{ matrix.name }}-${{ matrix.platformSlug }}
+          fail-build: false
+          only-fixed: true
+          severity-cutoff: high
+          output-format: json
+          output-file: reports/upstream.json
+
+      - name: Scan candidate
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7
+        with:
+          image: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
+          fail-build: false
+          only-fixed: true
+          severity-cutoff: high
+          output-format: json
+          output-file: reports/candidate.json
+
+      - name: Enforce vulnerability policy
+        env:
+          MAXIMUM: ${{ matrix.maxFixableHighCritical }}
+          REQUIRE_NO_REGRESSION: ${{ matrix.requireNoRegression }}
+        run: |
+          node evergreen/scripts/evaluate-scan.mjs \
+            --upstream reports/upstream.json \
+            --candidate reports/candidate.json \
+            --maximum "$MAXIMUM" \
+            --require-no-regression "$REQUIRE_NO_REGRESSION" \
+            | tee reports/evaluation.json
+
+      - name: Upload scan evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: scan-${{ matrix.name }}-${{ matrix.platformSlug }}
+          path: reports
+          retention-days: 30
+
+  publish:
+    needs:
+      - catalog
+      - verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.catalog.outputs.publish) }}
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout pinned upstream source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ matrix.sourceRepository }}
+          ref: ${{ matrix.sourceCommit }}
+          path: source
+          persist-credentials: false
+
+      - name: Set release tag
+        id: release
+        env:
+          VERSION: ${{ matrix.version }}
+        run: echo "tag=${VERSION}-r$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish multi-platform image
+        id: build
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: source/${{ matrix.context }}
+          file: source/${{ matrix.dockerfile }}
+          platforms: ${{ matrix.platforms }}
+          tags: ${{ matrix.outputImage }}:${{ steps.release.outputs.tag }}
+          labels: |
+            org.opencontainers.image.title=Evergreen ${{ matrix.name }}
+            org.opencontainers.image.description=${{ matrix.description }}
+            org.opencontainers.image.source=https://github.com/mikesplain/evergreen-containers
+            org.opencontainers.image.revision=${{ matrix.sourceCommit }}
+            org.opencontainers.image.version=${{ steps.release.outputs.tag }}
+            org.opencontainers.image.licenses=${{ matrix.license }}
+            dev.evergreen-containers.upstream.repository=https://github.com/${{ matrix.sourceRepository }}
+            dev.evergreen-containers.upstream.tag=${{ matrix.sourceTag }}
+            dev.evergreen-containers.upstream.commit=${{ matrix.sourceCommit }}
+          pull: true
+          no-cache: true
+          push: true
+          provenance: mode=max
+          sbom: true
+
+      - name: Attest published image
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        with:
+          subject-name: ${{ matrix.outputImage }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Write release summary
+        env:
+          IMAGE: ${{ matrix.outputImage }}
+          TAG: ${{ steps.release.outputs.tag }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          {
+            echo "## Evergreen ${IMAGE##*/}"
+            echo
+            echo '```text'
+            echo "${IMAGE}:${TAG}"
+            echo "${IMAGE}@${DIGEST}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
