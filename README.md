@@ -43,8 +43,10 @@ upstream upgrades as separate responsibilities.
 | Sockpuppet Browser | Exact-source rebuild | [`0.0.3`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.3) | `linux/amd64`, `linux/arm64` | Candidate validation; Chromium 119 blocks promotion |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
-automation currently implements exact-source rebuilds using the upstream
-project's own Dockerfile. A Dockerfile-free OS-package patch mode based on
+automation implements pinned-source rebuilds using the upstream project's
+Dockerfile. Reviewed catalog build arguments and source patches may refresh
+packaging dependencies without carrying a downstream Dockerfile. A
+Dockerfile-free OS-package patch mode based on
 [Copacetic](https://project-copacetic.github.io/copacetic/) is planned after
 the first image proves the release model.
 

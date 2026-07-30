@@ -67,6 +67,39 @@ test("release-disabled candidates are verified but not published", () => {
   assert.ok(!publishNames.has("sockpuppetbrowser"));
 });
 
+test("build overrides and patches are rendered for verification", () => {
+  const matrix = verificationMatrix(loadCatalog());
+  const democraticCsi = matrix.include.find(({ name }) => name === "democratic-csi");
+
+  assert.match(democraticCsi.buildArgs, /^CTR_VERSION=v2\.3\.3/m);
+  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.74\.4/m);
+  assert.equal(democraticCsi.hasPatches, true);
+  assert.equal(democraticCsi.modifiedBuild, true);
+  assert.deepEqual(JSON.parse(democraticCsi.patches), [
+    "patches/democratic-csi/node-24.patch"
+  ]);
+});
+
+test("unsafe build argument values are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.args.CTR_VERSION = "v2.3.3\nUNSAFE=value";
+
+  assert.ok(
+    validateCatalog(catalog).some((error) => error.includes("contains unsupported characters"))
+  );
+});
+
+test("missing or escaping patch paths are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.patches = ["../outside.patch"];
+
+  assert.ok(
+    validateCatalog(catalog).some((error) =>
+      error.includes("must reference an existing .patch file")
+    )
+  );
+});
+
 test("duplicate names are rejected", () => {
   const catalog = loadCatalog();
   catalog.images.push(structuredClone(catalog.images[0]));

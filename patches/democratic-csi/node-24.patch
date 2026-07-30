@@ -1,0 +1,12 @@
+diff --git a/Dockerfile b/Dockerfile
+index 4c22bda..486bbda 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -35,6 +35,6 @@ RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/*
+ 
+ ENV LANG=en_US.utf8
+-ENV NODE_VERSION=v20.19.0
++ENV NODE_VERSION=v24.18.1
+ ENV NODE_ENV=production
+ 
+ # install build deps

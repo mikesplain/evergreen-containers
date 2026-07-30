@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/release.yml"
       - "catalog/**"
+      - "patches/**"
       - "scripts/**"
       - "tests/**"
   push:
@@ -13,6 +14,7 @@ on:
     paths:
       - ".github/workflows/release.yml"
       - "catalog/**"
+      - "patches/**"
       - "scripts/**"
       - "tests/**"
   schedule:
@@ -104,6 +106,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 
+      - name: Apply reviewed source patches
+        if: ${{ matrix.hasPatches }}
+        env:
+          EVERGREEN_PATCHES: ${{ matrix.patches }}
+        run: node evergreen/scripts/prepare-source.mjs source
+
       - name: Pull upstream platform
         env:
           PLATFORM: ${{ matrix.platform }}
@@ -118,6 +126,7 @@ jobs:
         with:
           context: source/${{ matrix.context }}
           file: source/${{ matrix.dockerfile }}
+          build-args: ${{ matrix.buildArgs }}
           platforms: ${{ matrix.platform }}
           tags: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
           pull: true
@@ -213,6 +222,12 @@ jobs:
           VERSION: ${{ matrix.version }}
         run: echo "tag=${VERSION}-r$(date -u +%Y%m%d).${RUN_NUMBER}.${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
 
+      - name: Apply reviewed source patches
+        if: ${{ matrix.hasPatches }}
+        env:
+          EVERGREEN_PATCHES: ${{ matrix.patches }}
+        run: node evergreen/scripts/prepare-source.mjs source
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
 
@@ -232,6 +247,7 @@ jobs:
         with:
           context: source/${{ matrix.context }}
           file: source/${{ matrix.dockerfile }}
+          build-args: ${{ matrix.buildArgs }}
           platforms: ${{ matrix.platforms }}
           tags: ${{ matrix.outputImage }}:${{ steps.release.outputs.tag }}
           labels: |
@@ -244,6 +260,7 @@ jobs:
             dev.evergreen-containers.upstream.repository=https://github.com/${{ matrix.sourceRepository }}
             dev.evergreen-containers.upstream.tag=${{ matrix.sourceTag }}
             dev.evergreen-containers.upstream.commit=${{ matrix.sourceCommit }}
+            dev.evergreen-containers.build.modified=${{ matrix.modifiedBuild }}
           pull: true
           no-cache: true
           push: true

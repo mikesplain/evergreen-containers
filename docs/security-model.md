@@ -25,15 +25,21 @@ The project does not guarantee that:
 - an image is safe to run without normal Kubernetes or container hardening;
 - application-level dependencies are repaired by an unchanged source rebuild.
 
+Catalog-controlled build arguments and source patches are part of the trusted
+Evergreen build input. Patches are stored in this repository, applied only to a
+full upstream source commit, and covered by the workflow's provenance. They are
+reserved for packaging and dependency remediation; application behavior remains
+anchored by the upstream source pin and contract test.
+
 ## Workflow separation
 
 Pull-request workflows receive only read permissions. They validate repository
 data and tests but cannot publish packages or attestations.
 
-Release jobs run only for scheduled and manually dispatched workflows whose
-definition comes from the protected default branch. Those jobs receive the
-minimum permissions needed to read source, publish packages, request an OIDC
-identity, and write attestations.
+Release jobs run after relevant merges to the protected default branch, on the
+weekly schedule, or by manual dispatch. Those jobs receive the minimum
+permissions needed to read source, publish packages, request an OIDC identity,
+and write attestations.
 
 All third-party actions are pinned to full commit SHAs. Catalog source inputs
 are also pinned to full commits or immutable image digests.

@@ -8,6 +8,8 @@ const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const TAG_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const PLATFORM_PATTERN = /^linux\/(?:amd64|arm64|arm\/v[67]|386|ppc64le|s390x|riscv64)$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const BUILD_ARG_PATTERN = /^[A-Z_][A-Z0-9_]*$/;
+const BUILD_ARG_VALUE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._+:/@-]*$/;
 
 export function loadCatalog(file = "catalog/images.json") {
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -17,6 +19,22 @@ function requireString(value, field, errors) {
   if (typeof value !== "string" || value.trim() === "") {
     errors.push(`${field} must be a non-empty string`);
   }
+}
+
+function buildConfiguration(image) {
+  const build = image.build ?? {};
+  const args = build.args ?? {};
+  const patches = build.patches ?? [];
+
+  return {
+    buildArgs: Object.entries(args)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([name, value]) => `${name}=${value}`)
+      .join("\n"),
+    hasPatches: patches.length > 0,
+    modifiedBuild: Object.keys(args).length > 0 || patches.length > 0,
+    patches: JSON.stringify(patches)
+  };
 }
 
 export function validateCatalog(catalog, root = process.cwd()) {
@@ -76,6 +94,54 @@ export function validateCatalog(catalog, root = process.cwd()) {
     }
     if (typeof upstream.sourceTag === "string" && !TAG_PATTERN.test(upstream.sourceTag)) {
       errors.push(`${prefix}.upstream.sourceTag contains unsupported characters`);
+    }
+
+    const build = image.build ?? {};
+    if (build.args !== undefined) {
+      if (
+        typeof build.args !== "object" ||
+        build.args === null ||
+        Array.isArray(build.args)
+      ) {
+        errors.push(`${prefix}.build.args must be an object`);
+      } else {
+        for (const [name, value] of Object.entries(build.args)) {
+          if (!BUILD_ARG_PATTERN.test(name)) {
+            errors.push(`${prefix}.build.args contains invalid argument name ${name}`);
+          }
+          requireString(value, `${prefix}.build.args.${name}`, errors);
+          if (typeof value === "string" && !BUILD_ARG_VALUE_PATTERN.test(value)) {
+            errors.push(`${prefix}.build.args.${name} contains unsupported characters`);
+          }
+        }
+      }
+    }
+    if (build.patches !== undefined) {
+      if (!Array.isArray(build.patches)) {
+        errors.push(`${prefix}.build.patches must be an array`);
+      } else {
+        const patchPaths = new Set();
+        for (const [patchIndex, patch] of build.patches.entries()) {
+          const field = `${prefix}.build.patches[${patchIndex}]`;
+          requireString(patch, field, errors);
+          if (
+            typeof patch === "string" &&
+            (!patch.startsWith(`patches/${image.name}/`) ||
+              path.isAbsolute(patch) ||
+              patch.split("/").includes("..") ||
+              !patch.endsWith(".patch") ||
+              !fs.existsSync(path.join(root, patch)))
+          ) {
+            errors.push(
+              `${field} must reference an existing .patch file under patches/${image.name}/`
+            );
+          }
+          if (patchPaths.has(patch)) {
+            errors.push(`${field} duplicates ${patch}`);
+          }
+          patchPaths.add(patch);
+        }
+      }
     }
 
     const output = image.output ?? {};
@@ -160,41 +226,55 @@ export function verificationMatrix(catalog, releaseEnabledOnly = false) {
     : catalog.images;
   return {
     include: images.flatMap((image) =>
-      image.platforms.map((platform) => ({
-        name: image.name,
-        platform,
-        platformSlug: platform.replaceAll("/", "-"),
-        runner: platform === "linux/arm64" ? "ubuntu-24.04-arm" : "ubuntu-24.04",
-        upstreamImage: image.upstream.image,
-        sourceRepository: image.upstream.sourceRepository,
-        sourceTag: image.upstream.sourceTag,
-        sourceCommit: image.upstream.sourceCommit,
-        context: image.upstream.context,
-        dockerfile: image.upstream.dockerfile,
-        testScript: image.test.script,
-        timeoutSeconds: image.test.timeoutSeconds,
-        maxFixableHighCritical: image.policy.maxFixableHighCritical,
-        requireNoRegression: image.policy.requireNoRegression
-      }))
+      image.platforms.map((platform) => {
+        const build = buildConfiguration(image);
+        return {
+          name: image.name,
+          platform,
+          platformSlug: platform.replaceAll("/", "-"),
+          runner: platform === "linux/arm64" ? "ubuntu-24.04-arm" : "ubuntu-24.04",
+          upstreamImage: image.upstream.image,
+          sourceRepository: image.upstream.sourceRepository,
+          sourceTag: image.upstream.sourceTag,
+          sourceCommit: image.upstream.sourceCommit,
+          context: image.upstream.context,
+          dockerfile: image.upstream.dockerfile,
+          buildArgs: build.buildArgs,
+          hasPatches: build.hasPatches,
+          modifiedBuild: build.modifiedBuild,
+          patches: build.patches,
+          testScript: image.test.script,
+          timeoutSeconds: image.test.timeoutSeconds,
+          maxFixableHighCritical: image.policy.maxFixableHighCritical,
+          requireNoRegression: image.policy.requireNoRegression
+        };
+      })
     )
   };
 }
 
 export function publicationMatrix(catalog) {
   return {
-    include: catalog.images.filter((image) => image.release.enabled).map((image) => ({
-      name: image.name,
-      description: image.description,
-      sourceRepository: image.upstream.sourceRepository,
-      sourceTag: image.upstream.sourceTag,
-      sourceCommit: image.upstream.sourceCommit,
-      version: image.upstream.version,
-      license: image.upstream.license,
-      context: image.upstream.context,
-      dockerfile: image.upstream.dockerfile,
-      outputImage: image.output.image,
-      platforms: image.platforms.join(","),
-      maxFixableHighCritical: image.policy.maxFixableHighCritical
-    }))
+    include: catalog.images.filter((image) => image.release.enabled).map((image) => {
+      const build = buildConfiguration(image);
+      return {
+        name: image.name,
+        description: image.description,
+        sourceRepository: image.upstream.sourceRepository,
+        sourceTag: image.upstream.sourceTag,
+        sourceCommit: image.upstream.sourceCommit,
+        version: image.upstream.version,
+        license: image.upstream.license,
+        context: image.upstream.context,
+        dockerfile: image.upstream.dockerfile,
+        buildArgs: build.buildArgs,
+        hasPatches: build.hasPatches,
+        modifiedBuild: build.modifiedBuild,
+        patches: build.patches,
+        outputImage: image.output.image,
+        platforms: image.platforms.join(","),
+        maxFixableHighCritical: image.policy.maxFixableHighCritical
+      };
+    })
   };
 }

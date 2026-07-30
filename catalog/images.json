@@ -50,12 +50,24 @@
         "context": ".",
         "dockerfile": "Dockerfile"
       },
+      "build": {
+        "args": {
+          "RCLONE_VERSION": "1.74.4",
+          "RESTIC_VERSION": "0.19.1",
+          "KOPIA_VERSION": "0.23.1",
+          "YQ_VERSION": "v4.53.3",
+          "CTR_VERSION": "v2.3.3"
+        },
+        "patches": [
+          "patches/democratic-csi/node-24.patch"
+        ]
+      },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
       },
       "release": {
         "enabled": false,
-        "blockedReason": "Candidate build, contract, and scan evidence has not completed."
+        "blockedReason": "Remediated candidate is awaiting reviewed multi-platform scan evidence."
       },
       "platforms": [
         "linux/amd64",
@@ -69,7 +81,7 @@
         "maxFixableHighCritical": 339,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30573110554"
       }
     },
     {
@@ -105,7 +117,7 @@
         "maxFixableHighCritical": 84,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30573110554"
       }
     }
   ]
