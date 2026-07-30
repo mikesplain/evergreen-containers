@@ -7,6 +7,7 @@ const IMAGE_PATTERN = /^(?:[a-z0-9.-]+\/)+[a-z0-9._/-]+(?::[A-Za-z0-9._-]+|@sha2
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const TAG_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const PLATFORM_PATTERN = /^linux\/(?:amd64|arm64|arm\/v[67]|386|ppc64le|s390x|riscv64)$/;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export function loadCatalog(file = "catalog/images.json") {
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -127,6 +128,15 @@ export function validateCatalog(catalog, root = process.cwd()) {
     }
     if (typeof policy.requireNoRegression !== "boolean") {
       errors.push(`${prefix}.policy.requireNoRegression must be a boolean`);
+    }
+    if (typeof policy.reviewedAt !== "string" || !DATE_PATTERN.test(policy.reviewedAt)) {
+      errors.push(`${prefix}.policy.reviewedAt must be an ISO 8601 date`);
+    }
+    if (
+      typeof policy.evidence !== "string" ||
+      !policy.evidence.startsWith("https://github.com/")
+    ) {
+      errors.push(`${prefix}.policy.evidence must be a GitHub evidence URL`);
     }
   }
 
