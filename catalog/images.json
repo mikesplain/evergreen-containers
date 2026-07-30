@@ -16,7 +16,7 @@
         "dockerfile": "Dockerfile"
       },
       "output": {
-        "image": "ghcr.io/mikesplain/evergreen-flaresolverr"
+        "image": "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
       },
       "platforms": [
         "linux/amd64",

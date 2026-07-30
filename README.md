@@ -88,14 +88,14 @@ Verify GitHub provenance before consuming an image:
 
 ```sh
 gh attestation verify \
-  oci://ghcr.io/mikesplain/evergreen-flaresolverr@sha256:... \
+  oci://ghcr.io/mikesplain/evergreen-containers/flaresolverr@sha256:... \
   --repo mikesplain/evergreen-containers
 ```
 
 Then pin the verified digest in the deployment:
 
 ```text
-ghcr.io/mikesplain/evergreen-flaresolverr@sha256:...
+ghcr.io/mikesplain/evergreen-containers/flaresolverr@sha256:...
 ```
 
 See [`docs/security-model.md`](docs/security-model.md) for the trust boundary,
