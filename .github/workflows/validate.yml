@@ -1,0 +1,33 @@
+name: Catalog validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate catalog
+        run: node scripts/validate-catalog.mjs
+
+      - name: Run tests
+        run: node --test
+
+      - name: Check workflow action pins
+        run: node scripts/check-workflows.mjs
+
+      - name: Check shell syntax
+        run: bash -n tests/*.sh

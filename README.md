@@ -1,2 +1,122 @@
-# evergreen-containers
-Continuously refreshed, scanned, and attested builds of stable upstream container images.
+# Evergreen Containers
+
+[![Catalog validation](https://github.com/mikesplain/evergreen-containers/actions/workflows/validate.yml/badge.svg)](https://github.com/mikesplain/evergreen-containers/actions/workflows/validate.yml)
+[![Weekly releases](https://github.com/mikesplain/evergreen-containers/actions/workflows/release.yml/badge.svg)](https://github.com/mikesplain/evergreen-containers/actions/workflows/release.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/mikesplain/evergreen-containers/badge)](https://scorecard.dev/viewer/?uri=github.com/mikesplain/evergreen-containers)
+[![License](https://img.shields.io/github/license/mikesplain/evergreen-containers)](LICENSE)
+
+Continuously refreshed, scanned, and attested builds of stable upstream
+container images.
+
+Evergreen Containers keeps application source stable while refreshing the
+packaging around it. It is intended for useful upstream projects whose
+container release cadence leaves fixable operating-system vulnerabilities
+behind.
+
+## Why
+
+A stable application release can remain operational for years while its
+container accumulates known vulnerabilities. Consumers are then forced to
+choose between old packages, an unrelated source fork, or maintaining a full
+downstream image.
+
+Evergreen Containers provides a smaller fourth option:
+
+1. pin the exact upstream source commit or image digest;
+2. rebuild or patch it on public GitHub-hosted runners;
+3. test the resulting application contract;
+4. compare upstream and candidate vulnerability reports;
+5. publish an immutable multi-platform image with SBOM and provenance
+   attestations.
+
+This project does not claim that a low CVE count makes an image secure. It
+preserves runtime hardening, least privilege, network isolation, and prompt
+upstream upgrades as separate responsibilities.
+
+## Catalog
+
+| Image | Mode | Upstream | Platforms | Status |
+| --- | --- | --- | --- | --- |
+| Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | Initial candidate |
+
+Catalog entries live in [`catalog/images.json`](catalog/images.json). The
+automation currently implements exact-source rebuilds using the upstream
+project's own Dockerfile. A Dockerfile-free OS-package patch mode based on
+[Copacetic](https://project-copacetic.github.io/copacetic/) is planned after
+the first image proves the release model.
+
+## Release model
+
+- Weekly releases run from protected `main`; maintainers can also dispatch one
+  manually.
+- Application source is pinned to a full upstream commit. Weekly jobs do not
+  silently adopt new application code.
+- Base images and package repositories are refreshed with BuildKit
+  `pull` and no-cache builds.
+- Each supported platform is built, smoke-tested, and scanned independently on
+  native GitHub-hosted architecture runners when available.
+- A candidate must not regress its upstream image and must remain within its
+  reviewed fixable High/Critical budget.
+- Published tags are immutable and include the upstream version, UTC date, and
+  Actions run number, for example `v3.5.0-r20260730.42`.
+- Multi-platform images include BuildKit SBOM and SLSA provenance attestations,
+  plus GitHub artifact provenance tied to the publishing workflow.
+- Consumers should deploy by digest or accept updates through a reviewed
+  dependency-automation pull request.
+
+Images are published from this repository to GitHub Container Registry under
+the `mikesplain` namespace. The exact pull reference and digest are included in
+each successful workflow summary.
+
+The normal lifecycle is 100% GitHub Actions automation. It does not require a
+maintainer workstation, private runner, or locally installed container engine.
+
+## Trust and verification
+
+Verify GitHub provenance before consuming an image:
+
+```sh
+gh attestation verify \
+  oci://ghcr.io/mikesplain/evergreen-flaresolverr@sha256:... \
+  --repo mikesplain/evergreen-containers
+```
+
+Then pin the verified digest in the deployment:
+
+```text
+ghcr.io/mikesplain/evergreen-flaresolverr@sha256:...
+```
+
+See [`docs/security-model.md`](docs/security-model.md) for the trust boundary,
+threat model, and release guarantees.
+
+## Adding an image
+
+Evergreen Containers is deliberately selective. Before proposing an image,
+confirm that:
+
+- the upstream project and source are verifiable;
+- updating to a newer official release is not the better answer;
+- the current problem is primarily stale fixable OS packages;
+- a stable functional contract can be tested automatically;
+- the upstream license permits redistribution;
+- someone accepts ownership of compatibility and exception review.
+
+Add a catalog entry and contract test as described in
+[`CONTRIBUTING.md`](CONTRIBUTING.md). Most images should not require a local
+Dockerfile.
+
+## Non-goals
+
+- Mirroring images only for availability or convenience.
+- Forking actively maintained applications instead of updating them.
+- Automatically rewriting compiled application dependencies.
+- Publishing `latest` tags.
+- Suppressing vulnerabilities solely to make a badge green.
+- Treating rebuilt images as a substitute for runtime containment.
+
+## License
+
+The automation in this repository is licensed under the
+[Apache License 2.0](LICENSE). Rebuilt images retain their upstream projects'
+licenses and notices.

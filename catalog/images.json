@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "images": [
+    {
+      "name": "flaresolverr",
+      "description": "Proxy server that solves Cloudflare challenges with Chromium",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/flaresolverr/flaresolverr:v3.5.0",
+        "sourceRepository": "FlareSolverr/FlareSolverr",
+        "sourceTag": "v3.5.0",
+        "sourceCommit": "4ca91a24f87a73f963e1d6610cbf3b9f01c1cc1b",
+        "version": "v3.5.0",
+        "license": "MIT",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-flaresolverr"
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/flaresolverr.sh",
+        "timeoutSeconds": 240
+      },
+      "policy": {
+        "maxFixableHighCritical": 2200,
+        "requireNoRegression": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+name: Image request
+description: Propose a stable upstream image for Evergreen remediation.
+title: "[Image]: "
+labels:
+  - image-request
+body:
+  - type: input
+    id: upstream-image
+    attributes:
+      label: Upstream image
+      description: Include a version tag or immutable digest.
+      placeholder: ghcr.io/example/application:v1.2.3
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Official source repository
+      placeholder: https://github.com/example/application
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Vulnerability evidence
+      description: Summarize fixable High/Critical findings by package type.
+    validations:
+      required: true
+
+  - type: textarea
+    id: update
+    attributes:
+      label: Why not update or replace it?
+      description: Explain why a newer official release or maintained replacement is not preferable.
+    validations:
+      required: true
+
+  - type: input
+    id: platforms
+    attributes:
+      label: Required platforms
+      placeholder: linux/amd64, linux/arm64
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: Automated contract test
+      description: Describe a reliable health and functional test suitable for public CI.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      options:
+        - label: I verified that the source repository is official.
+          required: true
+        - label: I reviewed the upstream redistribution license.
+          required: true
+        - label: I understand that an accepted image needs an ongoing owner.
+          required: true
