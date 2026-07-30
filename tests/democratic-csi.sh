@@ -36,10 +36,10 @@ until docker run \
   --security-opt no-new-privileges \
   --cap-drop ALL \
   --mount "type=volume,src=${socket_volume},dst=/csi" \
-  --mount "type=bind,src=${script_dir}/democratic-csi-client.cjs,dst=/tmp/contract.cjs,readonly" \
+  --mount "type=bind,src=${script_dir}/democratic-csi-client.cjs,dst=/home/csi/app/evergreen-contract.cjs,readonly" \
   --entrypoint node \
   "$IMAGE" \
-  /tmp/contract.cjs; do
+  /home/csi/app/evergreen-contract.cjs; do
   if ! docker inspect --format '{{.State.Running}}' "$container_name" | grep -qx true; then
     docker logs "$container_name"
     echo "democratic-csi exited before serving the CSI identity contract."
