@@ -38,13 +38,18 @@ upstream upgrades as separate responsibilities.
 
 | Image | Mode | Upstream | Platforms | Status |
 | --- | --- | --- | --- | --- |
-| Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 fixable High/Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30557959456) |
+| Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686) |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation currently implements exact-source rebuilds using the upstream
 project's own Dockerfile. A Dockerfile-free OS-package patch mode based on
 [Copacetic](https://project-copacetic.github.io/copacetic/) is planned after
 the first image proves the release model.
+
+Flaresolverr's upstream Dockerfile currently uses a Debian 12 base that Grype
+reports beyond its standard-support lifecycle boundary. Weekly rebuilds reduce
+available package risk but are an interim control; [issue #7](https://github.com/mikesplain/evergreen-containers/issues/7)
+tracks lifecycle enforcement and migration to a supported base.
 
 ## Release model
 
