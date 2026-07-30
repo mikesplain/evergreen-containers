@@ -40,7 +40,7 @@ upstream upgrades as separate responsibilities.
 | --- | --- | --- | --- | --- |
 | Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686) |
 | democratic-csi | Exact-source rebuild | [`v1.9.5`](https://github.com/democratic-csi/democratic-csi/tree/v1.9.5) | `linux/amd64`, `linux/arm64` | [Verified: 9 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319) |
-| Sockpuppet Browser | Exact-source rebuild | [`0.0.3`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.3) | `linux/amd64`, `linux/arm64` | Candidate validation; Chromium 119 blocks promotion |
+| Sockpuppet Browser | Exact-source rebuild | [`0.0.3`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.3) | `linux/amd64`, `linux/arm64` | Maintained Chromium candidate validation |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation implements pinned-source rebuilds using the upstream project's

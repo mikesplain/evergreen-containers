@@ -1,0 +1,50 @@
+diff --git a/Dockerfile b/Dockerfile
+index d9d372d..067a1d3 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -1,2 +1,2 @@
+-FROM zenika/alpine-chrome:119-with-playwright
++FROM python:3.13-slim-trixie
+ LABEL org.opencontainers.image.source="https://github.com/dgtlmoon/sockpuppetbrowser"
+@@ -9,6 +9,16 @@ ENV PYTHONUNBUFFERED=1
+ ENV LOG_LEVEL=DEBUG
+-RUN apk add --update --no-cache python3 python3-dev musl-dev linux-headers xvfb xvfb-run openbox && ln -sf python3 /usr/bin/python
+-RUN python3 -m ensurepip
+-RUN pip3 install --upgrade pip
+-RUN pip3 install --no-cache --upgrade pip setuptools virtualenv
++RUN apt-get update \
++    && apt-get install -y --no-install-recommends \
++        ca-certificates \
++        chromium \
++        fonts-liberation \
++        fonts-noto-color-emoji \
++        openbox \
++        xauth \
++        xvfb \
++    && rm -rf /var/lib/apt/lists/*
++RUN groupadd --gid 1000 chrome \
++    && useradd --uid 1000 --gid chrome --create-home chrome \
++    && mkdir -p /usr/src/app \
++    && chown chrome:chrome /usr/src/app
+ # Copy and setup entrypoint script
+@@ -29,5 +39,5 @@ USER chrome
+ 
+-COPY requirements.txt /usr/src/app/requirements.txt
+-COPY backend/* /usr/src/app/
+-COPY chrome.json /usr/src/app/
++COPY --chown=chrome:chrome requirements.txt /usr/src/app/requirements.txt
++COPY --chown=chrome:chrome backend/* /usr/src/app/
++COPY --chown=chrome:chrome chrome.json /usr/src/app/
+ 
+@@ -35,3 +45,3 @@ WORKDIR /usr/src/app
+ 
+-ENV CHROME_BIN=/usr/bin/chromium-browser \
++ENV CHROME_BIN=/usr/bin/chromium \
+     CHROME_PATH=/usr/lib/chromium/
+@@ -40,3 +50,5 @@ ENV CHROME_BIN=/usr/bin/chromium-browser \
+ 
+-RUN python3 -m venv . && . ./bin/activate && ./bin/pip3 install -r requirements.txt
++RUN python3 -m venv . \
++    && ./bin/pip install --no-cache-dir --upgrade pip setuptools \
++    && ./bin/pip install --no-cache-dir -r requirements.txt
+ CMD ["/usr/local/bin/entrypoint.sh"]

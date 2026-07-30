@@ -94,6 +94,21 @@ test("build overrides and patches are rendered for verification", () => {
   ]);
 });
 
+test("Sockpuppet Browser uses a maintained browser patch and dependency lock", () => {
+  const matrix = verificationMatrix(loadCatalog());
+  const sockpuppet = matrix.include.find(({ name }) => name === "sockpuppetbrowser");
+
+  assert.equal(sockpuppet.hasOverlays, true);
+  assert.equal(sockpuppet.hasPatches, true);
+  assert.equal(sockpuppet.modifiedBuild, true);
+  assert.deepEqual(JSON.parse(sockpuppet.overlays), [
+    "overlays/sockpuppetbrowser/requirements.txt"
+  ]);
+  assert.deepEqual(JSON.parse(sockpuppet.patches), [
+    "patches/sockpuppetbrowser/maintained-browser-runtime.patch"
+  ]);
+});
+
 test("unsafe build argument values are rejected", () => {
   const catalog = loadCatalog();
   catalog.images[1].build.args.CTR_VERSION = "v2.3.3\nUNSAFE=value";

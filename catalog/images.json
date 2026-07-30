@@ -104,12 +104,20 @@
         "context": ".",
         "dockerfile": "Dockerfile"
       },
+      "build": {
+        "overlays": [
+          "overlays/sockpuppetbrowser/requirements.txt"
+        ],
+        "patches": [
+          "patches/sockpuppetbrowser/maintained-browser-runtime.patch"
+        ]
+      },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
       },
       "release": {
         "enabled": false,
-        "blockedReason": "Upstream source pins Chromium 119 and is not suitable for promotion."
+        "blockedReason": "Maintained Chromium candidate is awaiting reviewed multi-platform scan evidence."
       },
       "platforms": [
         "linux/amd64",
