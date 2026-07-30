@@ -225,11 +225,13 @@ jobs:
           sbom: true
 
       - name: Install Grype
+        id: grype
         uses: anchore/scan-action/download-grype@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7
 
       - name: Scan exact published digest
         env:
           DIGEST: ${{ steps.build.outputs.digest }}
+          GRYPE_CMD: ${{ steps.grype.outputs.cmd }}
           IMAGE: ${{ matrix.outputImage }}
           MAXIMUM: ${{ matrix.maxFixableHighCritical }}
           PLATFORMS: ${{ matrix.platforms }}
@@ -241,7 +243,7 @@ jobs:
             report="reports/published/${platform_slug}.json"
             evaluation="reports/published/${platform_slug}-evaluation.json"
 
-            grype \
+            "$GRYPE_CMD" \
               --platform "$platform" \
               "registry:${IMAGE}@${DIGEST}" \
               --only-fixed \
