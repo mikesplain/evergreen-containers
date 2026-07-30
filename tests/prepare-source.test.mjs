@@ -19,6 +19,10 @@ test("prepare-source applies catalog patches to a source checkout", () => {
         "ENV NODE_ENV=production",
         "",
         "# install build deps",
+        "# RUN apt-get update && apt-get install -y python3 make cmake gcc g++",
+        "",
+        "# install node",
+        "RUN apt-get update && apt-get install -y wget xz-utils",
         ""
       ].join("\n")
     );
@@ -28,12 +32,15 @@ test("prepare-source applies catalog patches to a source checkout", () => {
       encoding: "utf8",
       env: {
         ...process.env,
-        EVERGREEN_PATCHES: '["patches/democratic-csi/node-24.patch"]'
+        EVERGREEN_PATCHES:
+          '["patches/democratic-csi/node-24.patch","patches/democratic-csi/re2-build-deps.patch"]'
       }
     });
 
     assert.equal(result.status, 0, result.stderr);
-    assert.match(readFileSync(path.join(source, "Dockerfile"), "utf8"), /v24\.18\.1/);
+    const dockerfile = readFileSync(path.join(source, "Dockerfile"), "utf8");
+    assert.match(dockerfile, /v24\.18\.1/);
+    assert.match(dockerfile, /python3 make g\+\+/);
   } finally {
     rmSync(source, { recursive: true, force: true });
   }

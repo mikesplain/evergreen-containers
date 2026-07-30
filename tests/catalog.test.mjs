@@ -76,7 +76,8 @@ test("build overrides and patches are rendered for verification", () => {
   assert.equal(democraticCsi.hasPatches, true);
   assert.equal(democraticCsi.modifiedBuild, true);
   assert.deepEqual(JSON.parse(democraticCsi.patches), [
-    "patches/democratic-csi/node-24.patch"
+    "patches/democratic-csi/node-24.patch",
+    "patches/democratic-csi/re2-build-deps.patch"
   ]);
 });
 

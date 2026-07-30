@@ -59,7 +59,8 @@
           "CTR_VERSION": "v2.3.3"
         },
         "patches": [
-          "patches/democratic-csi/node-24.patch"
+          "patches/democratic-csi/node-24.patch",
+          "patches/democratic-csi/re2-build-deps.patch"
         ]
       },
       "output": {
