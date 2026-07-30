@@ -42,7 +42,7 @@ test("verification expands every platform", () => {
 
 test("publication retains one entry per release-enabled image", () => {
   const matrix = publicationMatrix(loadCatalog());
-  assert.equal(matrix.include.length, 2);
+  assert.equal(matrix.include.length, 3);
   assert.equal(
     matrix.include[0].outputImage,
     "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
@@ -55,9 +55,15 @@ test("publication retains one entry per release-enabled image", () => {
   );
   assert.equal(matrix.include[1].platforms, "linux/amd64,linux/arm64");
   assert.equal(matrix.include[1].maxFixableHighCritical, 9);
+  assert.equal(
+    matrix.include[2].outputImage,
+    "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
+  );
+  assert.equal(matrix.include[2].platforms, "linux/amd64,linux/arm64");
+  assert.equal(matrix.include[2].maxFixableHighCritical, 0);
 });
 
-test("release-disabled candidates are verified but not published", () => {
+test("release enablement controls verification and publication matrices", () => {
   const catalog = loadCatalog();
   const verifyNames = new Set(verificationMatrix(catalog).include.map(({ name }) => name));
   const releaseVerifyNames = new Set(
@@ -68,9 +74,9 @@ test("release-disabled candidates are verified but not published", () => {
   assert.ok(verifyNames.has("democratic-csi"));
   assert.ok(verifyNames.has("sockpuppetbrowser"));
   assert.ok(releaseVerifyNames.has("democratic-csi"));
-  assert.ok(!releaseVerifyNames.has("sockpuppetbrowser"));
+  assert.ok(releaseVerifyNames.has("sockpuppetbrowser"));
   assert.ok(publishNames.has("democratic-csi"));
-  assert.ok(!publishNames.has("sockpuppetbrowser"));
+  assert.ok(publishNames.has("sockpuppetbrowser"));
 });
 
 test("build overrides and patches are rendered for verification", () => {
