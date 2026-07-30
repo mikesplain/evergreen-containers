@@ -10,6 +10,11 @@ function option(name) {
   return process.argv[index + 1];
 }
 
+function optionalOption(name) {
+  const index = process.argv.indexOf(name);
+  return index === -1 ? undefined : process.argv[index + 1];
+}
+
 function fixableHighCritical(file) {
   const report = JSON.parse(fs.readFileSync(file, "utf8"));
   const findings = new Set();
@@ -39,7 +44,8 @@ function fixableHighCritical(file) {
   return findings.size;
 }
 
-const upstream = fixableHighCritical(option("--upstream"));
+const upstreamFile = optionalOption("--upstream");
+const upstream = upstreamFile ? fixableHighCritical(upstreamFile) : undefined;
 const candidate = fixableHighCritical(option("--candidate"));
 const maximum = Number.parseInt(option("--maximum"), 10);
 const requireNoRegression = option("--require-no-regression") === "true";
@@ -47,9 +53,9 @@ const requireNoRegression = option("--require-no-regression") === "true";
 console.log(
   JSON.stringify(
     {
-      upstreamFixableHighCritical: upstream,
+      upstreamFixableHighCritical: upstream ?? null,
       candidateFixableHighCritical: candidate,
-      reduction: upstream - candidate,
+      reduction: upstream === undefined ? null : upstream - candidate,
       maximum,
       requireNoRegression
     },
@@ -60,6 +66,10 @@ console.log(
 
 if (candidate > maximum) {
   console.error(`Candidate has ${candidate} findings, above reviewed maximum ${maximum}.`);
+  process.exit(1);
+}
+if (requireNoRegression && upstream === undefined) {
+  console.error("An upstream report is required when regression checks are enabled.");
   process.exit(1);
 }
 if (requireNoRegression && candidate > upstream) {

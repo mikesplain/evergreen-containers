@@ -26,8 +26,9 @@ Evergreen Containers provides a smaller fourth option:
 2. rebuild or patch it on public GitHub-hosted runners;
 3. test the resulting application contract;
 4. compare upstream and candidate vulnerability reports;
-5. publish an immutable multi-platform image with SBOM and provenance
-   attestations.
+5. publish a uniquely tagged multi-platform image;
+6. scan every published platform by the exact registry digest;
+7. attest the digest only after the publication scan passes.
 
 This project does not claim that a low CVE count makes an image secure. It
 preserves runtime hardening, least privilege, network isolation, and prompt
@@ -57,8 +58,11 @@ the first image proves the release model.
   native GitHub-hosted architecture runners when available.
 - A candidate must not regress its upstream image and must remain within its
   reviewed fixable High/Critical budget.
-- Published tags are immutable and include the upstream version, UTC date, and
-  Actions run number, for example `v3.5.0-r20260730.42`.
+- Every supported platform is scanned again from GHCR by the exact published
+  digest. The release workflow cannot attest a digest that exceeds its reviewed
+  budget.
+- Published tags are unique and include the upstream version, UTC date, Actions
+  run number, and run attempt, for example `v3.5.0-r20260730.42.1`.
 - Multi-platform images include BuildKit SBOM and SLSA provenance attestations,
   plus GitHub artifact provenance tied to the publishing workflow.
 - Consumers should deploy by digest or accept updates through a reviewed
@@ -68,8 +72,10 @@ Images are published from this repository to GitHub Container Registry under
 the `mikesplain` namespace. The exact pull reference and digest are included in
 each successful workflow summary.
 
-The normal lifecycle is 100% GitHub Actions automation. It does not require a
-maintainer workstation, private runner, or locally installed container engine.
+The normal lifecycle is 100% GitHub Actions automation: scheduled rebuild,
+contract tests, vulnerability comparison, publication, exact-digest scan,
+attestation, and evidence retention. It does not require a maintainer
+workstation, private runner, or locally installed container engine.
 
 ## Trust and verification
 

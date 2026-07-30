@@ -49,6 +49,29 @@ function evaluate(upstreamCount, candidateCount, maximum) {
   return result;
 }
 
+function evaluatePublished(candidateCount, maximum) {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "evergreen-published-scan-"));
+  const candidate = path.join(directory, "candidate.json");
+  fs.writeFileSync(candidate, JSON.stringify(report(candidateCount)));
+
+  const result = spawnSync(
+    process.execPath,
+    [
+      "scripts/evaluate-scan.mjs",
+      "--candidate",
+      candidate,
+      "--maximum",
+      String(maximum),
+      "--require-no-regression",
+      "false"
+    ],
+    { encoding: "utf8" }
+  );
+
+  fs.rmSync(directory, { recursive: true });
+  return result;
+}
+
 test("scan policy accepts an improved candidate under budget", () => {
   const result = evaluate(4, 2, 3);
   assert.equal(result.status, 0, result.stderr);
@@ -64,4 +87,32 @@ test("scan policy rejects a candidate above budget", () => {
   const result = evaluate(4, 3, 2);
   assert.equal(result.status, 1);
   assert.match(result.stderr, /above reviewed maximum/);
+});
+
+test("scan policy can enforce the budget on a published digest", () => {
+  const result = evaluatePublished(2, 2);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).upstreamFixableHighCritical, null);
+});
+
+test("scan policy requires upstream evidence for regression checks", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "evergreen-published-scan-"));
+  const candidate = path.join(directory, "candidate.json");
+  fs.writeFileSync(candidate, JSON.stringify(report(1)));
+  const result = spawnSync(
+    process.execPath,
+    [
+      "scripts/evaluate-scan.mjs",
+      "--candidate",
+      candidate,
+      "--maximum",
+      "1",
+      "--require-no-regression",
+      "true"
+    ],
+    { encoding: "utf8" }
+  );
+  fs.rmSync(directory, { recursive: true });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /upstream report is required/);
 });
