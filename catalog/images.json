@@ -30,7 +30,7 @@
         "maxFixableHighCritical": 12,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30557959456"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686"
       }
     }
   ]
