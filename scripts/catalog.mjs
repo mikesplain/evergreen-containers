@@ -90,6 +90,17 @@ export function validateCatalog(catalog, root = process.cwd()) {
       outputs.add(output.image);
     }
 
+    const release = image.release ?? {};
+    if (typeof release.enabled !== "boolean") {
+      errors.push(`${prefix}.release.enabled must be a boolean`);
+    }
+    if (
+      release.enabled === false &&
+      (typeof release.blockedReason !== "string" || release.blockedReason.trim() === "")
+    ) {
+      errors.push(`${prefix}.release.blockedReason must explain why publication is disabled`);
+    }
+
     if (!Array.isArray(image.platforms) || image.platforms.length === 0) {
       errors.push(`${prefix}.platforms must be a non-empty array`);
     } else {
@@ -143,9 +154,12 @@ export function validateCatalog(catalog, root = process.cwd()) {
   return errors;
 }
 
-export function verificationMatrix(catalog) {
+export function verificationMatrix(catalog, releaseEnabledOnly = false) {
+  const images = releaseEnabledOnly
+    ? catalog.images.filter((image) => image.release.enabled)
+    : catalog.images;
   return {
-    include: catalog.images.flatMap((image) =>
+    include: images.flatMap((image) =>
       image.platforms.map((platform) => ({
         name: image.name,
         platform,
@@ -168,7 +182,7 @@ export function verificationMatrix(catalog) {
 
 export function publicationMatrix(catalog) {
   return {
-    include: catalog.images.map((image) => ({
+    include: catalog.images.filter((image) => image.release.enabled).map((image) => ({
       name: image.name,
       description: image.description,
       sourceRepository: image.upstream.sourceRepository,

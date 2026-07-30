@@ -1,0 +1,8 @@
+driver: local-hostpath
+instance_id: evergreen-contract
+local-hostpath:
+  shareBasePath: /tmp/local-hostpath/controller
+  controllerBasePath: /tmp/local-hostpath/controller
+  dirPermissionsMode: "0777"
+  dirPermissionsUser: root
+  dirPermissionsGroup: root

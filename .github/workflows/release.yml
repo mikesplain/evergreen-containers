@@ -1,6 +1,12 @@
 name: Weekly releases
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "catalog/**"
+      - "scripts/**"
+      - "tests/**"
   schedule:
     - cron: "17 3 * * 0"
   workflow_dispatch:
@@ -26,11 +32,16 @@ jobs:
         run: node scripts/validate-catalog.mjs
 
       - name: Verify pinned upstream tags
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           node -e '
             const { spawnSync } = require("node:child_process");
             const catalog = require("./catalog/images.json");
-            for (const image of catalog.images) {
+            const images = process.env.EVENT_NAME === "pull_request"
+              ? catalog.images
+              : catalog.images.filter((image) => image.release.enabled);
+            for (const image of images) {
               const source = image.upstream;
               const result = spawnSync(
                 "node",
@@ -48,8 +59,14 @@ jobs:
 
       - name: Render matrices
         id: matrix
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          echo "verify=$(node scripts/render-matrix.mjs verify)" >> "$GITHUB_OUTPUT"
+          verify_kind=verify-release
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            verify_kind=verify
+          fi
+          echo "verify=$(node scripts/render-matrix.mjs "$verify_kind")" >> "$GITHUB_OUTPUT"
           echo "publish=$(node scripts/render-matrix.mjs publish)" >> "$GITHUB_OUTPUT"
 
   verify:
@@ -151,6 +168,7 @@ jobs:
           retention-days: 30
 
   publish:
+    if: ${{ github.event_name != 'pull_request' }}
     needs:
       - catalog
       - verify
