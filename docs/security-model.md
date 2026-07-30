@@ -11,6 +11,7 @@ The project guarantees that a published image:
   branch;
 - used the source repository and full commit recorded in the catalog;
 - passed the catalog's platform-specific contract test;
+- was scanned by exact registry digest for every published platform;
 - did not exceed its reviewed fixable High/Critical budget;
 - did not regress relative to the pinned upstream image when that policy is
   enabled;
@@ -39,13 +40,15 @@ are also pinned to full commits or immutable image digests.
 
 ## Release identity
 
-Every release uses an immutable tag:
+Every release uses a unique tag:
 
 ```text
-<upstream-version>-r<UTC-date>.<actions-run-number>
+<upstream-version>-r<UTC-date>.<actions-run-number>.<run-attempt>
 ```
 
-There is no `latest` tag. Consumers should verify provenance and deploy the
+Including the run attempt prevents the normal workflow rerun path from
+overwriting a previous release tag. There is no `latest` tag. Because registry
+tags are mutable references, consumers should verify provenance and deploy the
 resulting digest.
 
 ## Vulnerability policy
@@ -58,6 +61,11 @@ the upstream image under the same Grype database.
 The maximum is a temporary compatibility gate, not an ignore list. It must be
 reduced when a release removes findings. Raising it requires review and an
 explanation in the pull request.
+
+Native candidate scans catch regressions before publication. The publishing job
+then pulls each platform from GHCR by the exact multi-platform digest and
+enforces the reviewed maximum again. GitHub provenance is emitted only after
+that exact-artifact check succeeds.
 
 ## Reporting security issues
 

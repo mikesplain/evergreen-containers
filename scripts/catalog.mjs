@@ -179,7 +179,8 @@ export function publicationMatrix(catalog) {
       context: image.upstream.context,
       dockerfile: image.upstream.dockerfile,
       outputImage: image.output.image,
-      platforms: image.platforms.join(",")
+      platforms: image.platforms.join(","),
+      maxFixableHighCritical: image.policy.maxFixableHighCritical
     }))
   };
 }

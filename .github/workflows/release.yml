@@ -165,6 +165,12 @@ jobs:
       id-token: write
       attestations: write
     steps:
+      - name: Checkout Evergreen Containers
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: evergreen
+          persist-credentials: false
+
       - name: Checkout pinned upstream source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -176,8 +182,10 @@ jobs:
       - name: Set release tag
         id: release
         env:
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          RUN_NUMBER: ${{ github.run_number }}
           VERSION: ${{ matrix.version }}
-        run: echo "tag=${VERSION}-r$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
+        run: echo "tag=${VERSION}-r$(date -u +%Y%m%d).${RUN_NUMBER}.${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
@@ -215,6 +223,46 @@ jobs:
           push: true
           provenance: mode=max
           sbom: true
+
+      - name: Install Grype
+        uses: anchore/scan-action/download-grype@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7
+
+      - name: Scan exact published digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE: ${{ matrix.outputImage }}
+          MAXIMUM: ${{ matrix.maxFixableHighCritical }}
+          PLATFORMS: ${{ matrix.platforms }}
+        run: |
+          mkdir -p reports/published
+          IFS=',' read -ra platform_list <<< "$PLATFORMS"
+          for platform in "${platform_list[@]}"; do
+            platform_slug="${platform//\//-}"
+            report="reports/published/${platform_slug}.json"
+            evaluation="reports/published/${platform_slug}-evaluation.json"
+
+            grype \
+              --platform "$platform" \
+              "registry:${IMAGE}@${DIGEST}" \
+              --only-fixed \
+              --output json \
+              > "$report"
+
+            node evergreen/scripts/evaluate-scan.mjs \
+              --candidate "$report" \
+              --maximum "$MAXIMUM" \
+              --require-no-regression false \
+              | tee "$evaluation"
+          done
+
+      - name: Upload published scan evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: published-scan-${{ matrix.name }}
+          path: reports/published
+          retention-days: 30
+          if-no-files-found: error
 
       - name: Attest published image
         uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3

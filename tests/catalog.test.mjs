@@ -30,6 +30,7 @@ test("publication retains one entry per image", () => {
   const matrix = publicationMatrix(loadCatalog());
   assert.equal(matrix.include.length, 1);
   assert.equal(matrix.include[0].platforms, "linux/amd64,linux/arm64");
+  assert.equal(matrix.include[0].maxFixableHighCritical, 12);
 });
 
 test("duplicate names are rejected", () => {
