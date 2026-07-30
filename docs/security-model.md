@@ -1,0 +1,65 @@
+# Security Model
+
+Evergreen Containers is a downstream packaging and remediation service. It does
+not become the authoritative source for the applications it rebuilds.
+
+## Trust boundary
+
+The project guarantees that a published image:
+
+- was produced by a workflow on this public repository's protected default
+  branch;
+- used the source repository and full commit recorded in the catalog;
+- passed the catalog's platform-specific contract test;
+- did not exceed its reviewed fixable High/Critical budget;
+- did not regress relative to the pinned upstream image when that policy is
+  enabled;
+- carries immutable build metadata, an SBOM, and provenance attestations.
+
+The project does not guarantee that:
+
+- an upstream project, dependency repository, package mirror, or base image is
+  free from compromise;
+- every scanner finding is exploitable or every vulnerability is detected;
+- an image is safe to run without normal Kubernetes or container hardening;
+- application-level dependencies are repaired by an unchanged source rebuild.
+
+## Workflow separation
+
+Pull-request workflows receive only read permissions. They validate repository
+data and tests but cannot publish packages or attestations.
+
+Release jobs run only for scheduled and manually dispatched workflows whose
+definition comes from the protected default branch. Those jobs receive the
+minimum permissions needed to read source, publish packages, request an OIDC
+identity, and write attestations.
+
+All third-party actions are pinned to full commit SHAs. Catalog source inputs
+are also pinned to full commits or immutable image digests.
+
+## Release identity
+
+Every release uses an immutable tag:
+
+```text
+<upstream-version>-r<UTC-date>.<actions-run-number>
+```
+
+There is no `latest` tag. Consumers should verify provenance and deploy the
+resulting digest.
+
+## Vulnerability policy
+
+Scans count unique fixable High and Critical matches using the vulnerability,
+package, installed version, package type, and fix state. Each catalog entry has
+a reviewed maximum and may require that the candidate does not regress against
+the upstream image under the same Grype database.
+
+The maximum is a temporary compatibility gate, not an ignore list. It must be
+reduced when a release removes findings. Raising it requires review and an
+explanation in the pull request.
+
+## Reporting security issues
+
+Do not open a public issue for a suspected compromise, credential exposure, or
+unpublished vulnerability. Follow [`SECURITY.md`](../SECURITY.md).
