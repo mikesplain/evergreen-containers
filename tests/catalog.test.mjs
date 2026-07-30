@@ -29,6 +29,10 @@ test("verification expands every platform", () => {
 test("publication retains one entry per image", () => {
   const matrix = publicationMatrix(loadCatalog());
   assert.equal(matrix.include.length, 1);
+  assert.equal(
+    matrix.include[0].outputImage,
+    "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
+  );
   assert.equal(matrix.include[0].platforms, "linux/amd64,linux/arm64");
   assert.equal(matrix.include[0].maxFixableHighCritical, 12);
 });
