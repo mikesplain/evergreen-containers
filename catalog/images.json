@@ -60,7 +60,8 @@
         },
         "patches": [
           "patches/democratic-csi/node-24.patch",
-          "patches/democratic-csi/re2-build-deps.patch"
+          "patches/democratic-csi/re2-build-deps.patch",
+          "patches/democratic-csi/ctr-official-release.patch"
         ]
       },
       "output": {

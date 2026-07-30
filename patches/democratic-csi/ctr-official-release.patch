@@ -1,0 +1,17 @@
+diff --git a/docker/ctr-installer.sh b/docker/ctr-installer.sh
+index 20a2c48..b08ce80 100644
+--- a/docker/ctr-installer.sh
++++ b/docker/ctr-installer.sh
+@@ -35,8 +35,8 @@ fi
+ echo "I am installing ctr $CTR_VERSION"
+ 
+-export CTR_FILE="ctr-${CTR_VERSION}-linux-${PLATFORM_ARCH}"
+-wget -O "${CTR_FILE}" "https://github.com/democratic-csi/democratic-csi/releases/download/v1.0.0/${CTR_FILE}"
+-
+-mv ${CTR_FILE} /usr/local/bin/ctr
++export CTR_FILE="containerd-${CTR_VERSION#v}-linux-${PLATFORM_ARCH}.tar.gz"
++wget -O "/tmp/${CTR_FILE}" "https://github.com/containerd/containerd/releases/download/${CTR_VERSION}/${CTR_FILE}"
++tar -xzf "/tmp/${CTR_FILE}" -C /usr/local/bin --strip-components=1 bin/ctr
++rm "/tmp/${CTR_FILE}"
+ chown root:root /usr/local/bin/ctr
+ chmod +x /usr/local/bin/ctr
