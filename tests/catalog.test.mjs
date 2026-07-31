@@ -40,15 +40,21 @@ test("verification expands every platform", () => {
   );
 });
 
-test("publication retains one entry per image", () => {
+test("publication retains one entry per release-enabled image", () => {
   const matrix = publicationMatrix(loadCatalog());
-  assert.equal(matrix.include.length, 1);
+  assert.equal(matrix.include.length, 2);
   assert.equal(
     matrix.include[0].outputImage,
     "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
   );
   assert.equal(matrix.include[0].platforms, "linux/amd64,linux/arm64");
   assert.equal(matrix.include[0].maxFixableHighCritical, 12);
+  assert.equal(
+    matrix.include[1].outputImage,
+    "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
+  );
+  assert.equal(matrix.include[1].platforms, "linux/amd64,linux/arm64");
+  assert.equal(matrix.include[1].maxFixableHighCritical, 9);
 });
 
 test("release-disabled candidates are verified but not published", () => {
@@ -61,10 +67,62 @@ test("release-disabled candidates are verified but not published", () => {
 
   assert.ok(verifyNames.has("democratic-csi"));
   assert.ok(verifyNames.has("sockpuppetbrowser"));
-  assert.ok(!releaseVerifyNames.has("democratic-csi"));
+  assert.ok(releaseVerifyNames.has("democratic-csi"));
   assert.ok(!releaseVerifyNames.has("sockpuppetbrowser"));
-  assert.ok(!publishNames.has("democratic-csi"));
+  assert.ok(publishNames.has("democratic-csi"));
   assert.ok(!publishNames.has("sockpuppetbrowser"));
+});
+
+test("build overrides and patches are rendered for verification", () => {
+  const matrix = verificationMatrix(loadCatalog());
+  const democraticCsi = matrix.include.find(({ name }) => name === "democratic-csi");
+
+  assert.match(democraticCsi.buildArgs, /^CTR_VERSION=v2\.3\.3/m);
+  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.74\.4/m);
+  assert.equal(democraticCsi.hasOverlays, true);
+  assert.equal(democraticCsi.hasPatches, true);
+  assert.equal(democraticCsi.modifiedBuild, true);
+  assert.deepEqual(JSON.parse(democraticCsi.overlays), [
+    "overlays/democratic-csi/package.json",
+    "overlays/democratic-csi/package-lock.json"
+  ]);
+  assert.deepEqual(JSON.parse(democraticCsi.patches), [
+    "patches/democratic-csi/node-24.patch",
+    "patches/democratic-csi/re2-build-deps.patch",
+    "patches/democratic-csi/ctr-official-release.patch",
+    "patches/democratic-csi/npm-production-install.patch"
+  ]);
+});
+
+test("unsafe build argument values are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.args.CTR_VERSION = "v2.3.3\nUNSAFE=value";
+
+  assert.ok(
+    validateCatalog(catalog).some((error) => error.includes("contains unsupported characters"))
+  );
+});
+
+test("missing or escaping patch paths are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.patches = ["../outside.patch"];
+
+  assert.ok(
+    validateCatalog(catalog).some((error) =>
+      error.includes("must reference an existing .patch file")
+    )
+  );
+});
+
+test("missing or escaping overlay paths are rejected", () => {
+  const catalog = loadCatalog();
+  catalog.images[1].build.overlays = ["../outside.json"];
+
+  assert.ok(
+    validateCatalog(catalog).some((error) =>
+      error.includes("must reference an existing file")
+    )
+  );
 });
 
 test("duplicate names are rejected", () => {
