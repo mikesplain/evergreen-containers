@@ -104,12 +104,19 @@
         "context": ".",
         "dockerfile": "Dockerfile"
       },
+      "build": {
+        "overlays": [
+          "overlays/sockpuppetbrowser/requirements.txt"
+        ],
+        "patches": [
+          "patches/sockpuppetbrowser/maintained-browser-runtime.patch"
+        ]
+      },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
       },
       "release": {
-        "enabled": false,
-        "blockedReason": "Upstream source pins Chromium 119 and is not suitable for promotion."
+        "enabled": true
       },
       "platforms": [
         "linux/amd64",
@@ -120,10 +127,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 84,
+        "maxFixableHighCritical": 0,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30573110554"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30583852790"
       }
     }
   ]
