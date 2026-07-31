@@ -18,7 +18,12 @@ Open an issue with:
 
 Accepted images add one entry to `catalog/images.json` and one test under
 `tests/`. Exact-source rebuilds use the upstream Dockerfile and should not add a
-local Dockerfile.
+local Dockerfile. Catalog entries may pass versioned build arguments, overlay
+reviewed files from `overlays/<image>/`, or apply small reviewed patches under
+`patches/<image>/` when stale packaging inputs cannot be overridden upstream.
+Overlays keep generated dependency locks deterministic without forking the
+upstream Dockerfile. These changes must not alter the application's functional
+scope and must remain suitable for upstream contribution.
 
 New entries start with `release.enabled: false` and a concrete
 `release.blockedReason`. Pull requests still build, contract-test, and scan

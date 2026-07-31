@@ -1,0 +1,15 @@
+diff --git a/Dockerfile b/Dockerfile
+index 4c1071e..969e88d 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -40,7 +40,9 @@ ENV NODE_VERSION=v24.18.1
+ ENV NODE_ENV=production
+ 
+ # install build deps
+-# RUN apt-get update && apt-get install -y python3 make cmake gcc g++
++RUN apt-get update \
++  && apt-get install -y --no-install-recommends python3 make g++ \
++  && rm -rf /var/lib/apt/lists/*
+ 
+ # install node
+ RUN apt-get update && apt-get install -y wget xz-utils

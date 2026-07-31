@@ -50,12 +50,30 @@
         "context": ".",
         "dockerfile": "Dockerfile"
       },
+      "build": {
+        "args": {
+          "RCLONE_VERSION": "1.74.4",
+          "RESTIC_VERSION": "0.19.1",
+          "KOPIA_VERSION": "0.23.1",
+          "YQ_VERSION": "v4.53.3",
+          "CTR_VERSION": "v2.3.3"
+        },
+        "overlays": [
+          "overlays/democratic-csi/package.json",
+          "overlays/democratic-csi/package-lock.json"
+        ],
+        "patches": [
+          "patches/democratic-csi/node-24.patch",
+          "patches/democratic-csi/re2-build-deps.patch",
+          "patches/democratic-csi/ctr-official-release.patch",
+          "patches/democratic-csi/npm-production-install.patch"
+        ]
+      },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
       },
       "release": {
-        "enabled": false,
-        "blockedReason": "Candidate build, contract, and scan evidence has not completed."
+        "enabled": true
       },
       "platforms": [
         "linux/amd64",
@@ -66,10 +84,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 339,
+        "maxFixableHighCritical": 9,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319"
       }
     },
     {
@@ -105,7 +123,7 @@
         "maxFixableHighCritical": 84,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/home-flux/issues/4179"
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30573110554"
       }
     }
   ]
