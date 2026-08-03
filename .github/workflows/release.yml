@@ -38,7 +38,7 @@ jobs:
       publish: ${{ steps.matrix.outputs.publish }}
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Validate catalog
         run: node scripts/validate-catalog.mjs
@@ -92,13 +92,13 @@ jobs:
       contents: read
     steps:
       - name: Checkout Evergreen Containers
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: evergreen
           persist-credentials: false
 
       - name: Checkout pinned upstream source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ matrix.sourceRepository }}
           ref: ${{ matrix.sourceCommit }}
@@ -204,13 +204,13 @@ jobs:
       attestations: write
     steps:
       - name: Checkout Evergreen Containers
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: evergreen
           persist-credentials: false
 
       - name: Checkout pinned upstream source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ matrix.sourceRepository }}
           ref: ${{ matrix.sourceCommit }}
@@ -314,7 +314,7 @@ jobs:
           if-no-files-found: error
 
       - name: Attest published image
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
         with:
           subject-name: ${{ matrix.outputImage }}
           subject-digest: ${{ steps.build.outputs.digest }}
