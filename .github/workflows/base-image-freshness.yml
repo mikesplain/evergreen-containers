@@ -1,0 +1,42 @@
+name: Upstream base-image freshness
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/base-image-freshness.yml"
+      - "scripts/check-base-images.mjs"
+      - "catalog/images.json"
+  schedule:
+    - cron: "11 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Inspect pinned upstream Dockerfiles
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/check-base-images.mjs
+      - name: Upload inventory
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: upstream-base-image-inventory
+          path: base-images.md
+      - name: Publish review issue
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state open --search "in:title Upstream base-image review" --json number --jq '.[0].number' > existing.txt
+          if [ -s existing.txt ]; then
+            gh issue comment "$(cat existing.txt)" --body-file base-images.md
+          else
+            gh issue create --title "Upstream base-image review" --body-file base-images.md --label maintenance || true
+          fi
