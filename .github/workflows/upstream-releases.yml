@@ -1,12 +1,17 @@
 name: Upstream release updates
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/upstream-releases.yml"
+      - "scripts/update-upstream-releases.mjs"
+      - "catalog/images.json"
   schedule:
     - cron: "41 3 * * 1"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
 
 jobs:
@@ -16,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          persist-credentials: true
+          persist-credentials: false
       - name: Update pinned upstream releases
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -24,6 +29,7 @@ jobs:
       - name: Validate catalog
         run: node scripts/validate-catalog.mjs
       - name: Create pull request
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
