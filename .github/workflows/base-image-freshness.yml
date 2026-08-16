@@ -38,5 +38,5 @@ jobs:
           if [ -s existing.txt ]; then
             gh issue comment "$(cat existing.txt)" --body-file base-images.md
           else
-            gh issue create --title "Upstream base-image review" --body-file base-images.md --label maintenance || true
+            gh issue create --title "Upstream base-image review" --body-file base-images.md --label maintenance
           fi
