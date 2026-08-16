@@ -9,7 +9,7 @@ const token = process.env.GITHUB_TOKEN;
 if (!token) { console.error("GITHUB_TOKEN is required"); process.exit(2); }
 
 function github(path) {
-  return JSON.parse(execFileSync("curl", ["-fsSL", "-H", `Authorization: Bearer ${token}`, "-H", "Accept: application/vnd.github+json", `https://api.github.com${path}`], { encoding: "utf8" }));
+  return JSON.parse(execFileSync("curl", ["-fsSL", "-H", "Authorization: Bearer " + token, "-H", "Accept: application/vnd.github+json", `https://api.github.com${path}`], { encoding: "utf8" }));
 }
 
 let changed = false;
