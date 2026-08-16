@@ -1,6 +1,11 @@
 name: Upstream base-image freshness
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/base-image-freshness.yml"
+      - "scripts/check-base-images.mjs"
+      - "catalog/images.json"
   schedule:
     - cron: "11 4 * * 1"
   workflow_dispatch:
@@ -25,6 +30,7 @@ jobs:
           name: upstream-base-image-inventory
           path: base-images.md
       - name: Publish review issue
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
