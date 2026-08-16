@@ -1,0 +1,43 @@
+name: Upstream release updates
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/upstream-releases.yml"
+      - "scripts/update-upstream-releases.mjs"
+      - "catalog/images.json"
+  schedule:
+    - cron: "41 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Update pinned upstream releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/update-upstream-releases.mjs
+      - name: Validate catalog
+        run: node scripts/validate-catalog.mjs
+      - name: Create pull request
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- catalog/images.json; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b automation/upstream-release-updates
+          git add catalog/images.json
+          git commit -m "chore: update pinned upstream releases"
+          git push --force-with-lease origin automation/upstream-release-updates
+          gh pr create --base main --head automation/upstream-release-updates --title "chore: update pinned upstream releases" --body "Automated upstream release update; normal candidate build, contract, scan, and publication gates apply."
