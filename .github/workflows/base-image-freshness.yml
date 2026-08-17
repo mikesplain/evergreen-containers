@@ -34,9 +34,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh issue list --state open --search "in:title Upstream base-image review" --json number --jq '.[0].number' > existing.txt
-          if [ -s existing.txt ]; then
-            gh issue comment "$(cat existing.txt)" --body-file base-images.md
+          existing_issue=$(gh issue list --state open --search "Upstream base-image review in:title" --json number --jq '.[0].number // empty')
+          if [[ -n "$existing_issue" ]]; then
+            gh issue comment "$existing_issue" --body-file base-images.md
           else
             gh issue create --title "Upstream base-image review" --body-file base-images.md --label enhancement
           fi
