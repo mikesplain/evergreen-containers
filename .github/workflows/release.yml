@@ -180,6 +180,29 @@ jobs:
             --require-no-regression "$REQUIRE_NO_REGRESSION" \
             | tee reports/evaluation.json
 
+      - name: Detect base distribution
+        id: base-detect
+        env:
+          IMAGE: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
+        run: |
+          OS_RELEASE=$(docker run --rm "$IMAGE" cat /etc/os-release)
+          DISTRO=$(echo "$OS_RELEASE" | grep '^ID=' | cut -d= -f2 | tr -d '"')
+          VERSION_ID=$(echo "$OS_RELEASE" | grep '^VERSION_ID=' | cut -d= -f2 | tr -d '"')
+          echo "distro=$DISTRO" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Check base lifecycle policy
+        env:
+          IMAGE_NAME: ${{ matrix.name }}
+          DETECTED_DISTRO: ${{ steps.base-detect.outputs.distro }}
+          DETECTED_VERSION: ${{ steps.base-detect.outputs.version }}
+        run: |
+          node evergreen/scripts/check-base-lifecycle.mjs \
+            --distro "$DETECTED_DISTRO" \
+            --version "$DETECTED_VERSION" \
+            --image-name "$IMAGE_NAME" \
+            | tee reports/base-lifecycle.json
+
       - name: Upload scan evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -304,6 +327,31 @@ jobs:
               | tee "$evaluation"
           done
 
+      - name: Detect base distribution from published image
+        id: base-detect
+        env:
+          IMAGE: ${{ matrix.outputImage }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          docker pull --platform linux/amd64 "${IMAGE}@${DIGEST}"
+          OS_RELEASE=$(docker run --rm "${IMAGE}@${DIGEST}" cat /etc/os-release)
+          DISTRO=$(echo "$OS_RELEASE" | grep '^ID=' | cut -d= -f2 | tr -d '"')
+          VERSION_ID=$(echo "$OS_RELEASE" | grep '^VERSION_ID=' | cut -d= -f2 | tr -d '"')
+          echo "distro=$DISTRO" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Check base lifecycle policy
+        env:
+          IMAGE_NAME: ${{ matrix.name }}
+          DETECTED_DISTRO: ${{ steps.base-detect.outputs.distro }}
+          DETECTED_VERSION: ${{ steps.base-detect.outputs.version }}
+        run: |
+          node evergreen/scripts/check-base-lifecycle.mjs \
+            --distro "$DETECTED_DISTRO" \
+            --version "$DETECTED_VERSION" \
+            --image-name "$IMAGE_NAME" \
+            | tee reports/published/base-lifecycle.json
+
       - name: Upload published scan evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -326,6 +374,7 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
+          LIFECYCLE_STATUS=$(node -e 'const r=JSON.parse(require("fs").readFileSync("reports/published/base-lifecycle.json","utf8"));console.log(`${r.detected.distribution} ${r.detected.version} (${r.status})`)')
           {
             echo "## Evergreen ${IMAGE##*/}"
             echo
@@ -333,4 +382,6 @@ jobs:
             echo "${IMAGE}:${TAG}"
             echo "${IMAGE}@${DIGEST}"
             echo '```'
+            echo
+            echo "Base: ${LIFECYCLE_STATUS}"
           } >> "$GITHUB_STEP_SUMMARY"

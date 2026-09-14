@@ -34,6 +34,11 @@
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
         "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686"
+      },
+      "base": {
+        "distribution": "debian",
+        "version": "12",
+        "reviewedAt": "2026-08-01"
       }
     },
     {
@@ -88,6 +93,11 @@
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
         "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319"
+      },
+      "base": {
+        "distribution": "debian",
+        "version": "12",
+        "reviewedAt": "2026-08-01"
       }
     },
     {
@@ -131,6 +141,11 @@
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
         "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30583852790"
+      },
+      "base": {
+        "distribution": "debian",
+        "version": "13",
+        "reviewedAt": "2026-08-01"
       }
     }
   ]
