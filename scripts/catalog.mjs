@@ -247,6 +247,47 @@ export function validateCatalog(catalog, root = process.cwd()) {
     ) {
       errors.push(`${prefix}.policy.evidence must be a GitHub evidence URL`);
     }
+
+    const base = image.base ?? {};
+    if (typeof base.distribution !== "string" || base.distribution.trim() === "") {
+      errors.push(`${prefix}.base.distribution must be a non-empty string`);
+    }
+    if (typeof base.version !== "string" || base.version.trim() === "") {
+      errors.push(`${prefix}.base.version must be a non-empty string`);
+    }
+    if (typeof base.reviewedAt !== "string" || !DATE_PATTERN.test(base.reviewedAt)) {
+      errors.push(`${prefix}.base.reviewedAt must be an ISO 8601 date`);
+    }
+    const exception = base.exception;
+    if (exception !== undefined) {
+      if (typeof exception !== "object" || exception === null) {
+        errors.push(`${prefix}.base.exception must be an object`);
+      } else {
+        if (typeof exception.owner !== "string" || exception.owner.trim() === "") {
+          errors.push(`${prefix}.base.exception.owner must be a non-empty string`);
+        }
+        if (typeof exception.reason !== "string" || exception.reason.trim() === "") {
+          errors.push(`${prefix}.base.exception.reason must be a non-empty string`);
+        }
+        if (
+          typeof exception.evidence !== "string" ||
+          !exception.evidence.startsWith("https://github.com/")
+        ) {
+          errors.push(`${prefix}.base.exception.evidence must be a GitHub URL`);
+        }
+        if (
+          typeof exception.migrationIssue !== "string" ||
+          !exception.migrationIssue.startsWith("https://github.com/")
+        ) {
+          errors.push(`${prefix}.base.exception.migrationIssue must be a GitHub URL`);
+        }
+        if (typeof exception.expires !== "string" || !DATE_PATTERN.test(exception.expires)) {
+          errors.push(`${prefix}.base.exception.expires must be an ISO 8601 date`);
+        } else if (exception.expires < new Date().toISOString().slice(0, 10)) {
+          errors.push(`${prefix}.base.exception.expires must be a future date`);
+        }
+      }
+    }
   }
 
   return errors;
@@ -280,7 +321,9 @@ export function verificationMatrix(catalog, releaseEnabledOnly = false) {
           testScript: image.test.script,
           timeoutSeconds: image.test.timeoutSeconds,
           maxFixableHighCritical: image.policy.maxFixableHighCritical,
-          requireNoRegression: image.policy.requireNoRegression
+          requireNoRegression: image.policy.requireNoRegression,
+          baseDistribution: image.base.distribution,
+          baseVersion: image.base.version
         };
       })
     )
