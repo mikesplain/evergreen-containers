@@ -185,7 +185,9 @@ jobs:
         env:
           IMAGE: evergreen-candidate:${{ matrix.name }}-${{ matrix.platformSlug }}
         run: |
-          OS_RELEASE=$(docker run --rm "$IMAGE" cat /etc/os-release)
+          # --entrypoint cat bypasses the image's ENTRYPOINT (which may be an app
+          # binary, not a passthrough) so we can read /etc/os-release reliably.
+          OS_RELEASE=$(docker run --rm --entrypoint cat "$IMAGE" /etc/os-release)
           DISTRO=$(echo "$OS_RELEASE" | grep '^ID=' | cut -d= -f2 | tr -d '"')
           VERSION_ID=$(echo "$OS_RELEASE" | grep '^VERSION_ID=' | cut -d= -f2 | tr -d '"')
           echo "distro=$DISTRO" >> "$GITHUB_OUTPUT"
@@ -334,7 +336,9 @@ jobs:
           DIGEST: ${{ steps.build.outputs.digest }}
         run: |
           docker pull --platform linux/amd64 "${IMAGE}@${DIGEST}"
-          OS_RELEASE=$(docker run --rm "${IMAGE}@${DIGEST}" cat /etc/os-release)
+          # --entrypoint cat bypasses the image's ENTRYPOINT (which may be an app
+          # binary, not a passthrough) so we can read /etc/os-release reliably.
+          OS_RELEASE=$(docker run --rm --entrypoint cat "${IMAGE}@${DIGEST}" /etc/os-release)
           DISTRO=$(echo "$OS_RELEASE" | grep '^ID=' | cut -d= -f2 | tr -d '"')
           VERSION_ID=$(echo "$OS_RELEASE" | grep '^VERSION_ID=' | cut -d= -f2 | tr -d '"')
           echo "distro=$DISTRO" >> "$GITHUB_OUTPUT"
