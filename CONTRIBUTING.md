@@ -25,6 +25,13 @@ Overlays keep generated dependency locks deterministic without forking the
 upstream Dockerfile. These changes must not alter the application's functional
 scope and must remain suitable for upstream contribution.
 
+Every catalog entry must declare its expected base distribution in the `base`
+section (`distribution`, `version`, `reviewedAt`). The release workflow reads
+`/etc/os-release` from the built image and fails if the detected base does not
+match. If the base is in an end-of-life state, an `exception` object with an
+owner, evidence, migration issue, and expiry date is required — see
+`docs/security-model.md` for details.
+
 New entries start with `release.enabled: false` and a concrete
 `release.blockedReason`. Pull requests still build, contract-test, and scan
 release-disabled candidates on every declared platform. Enable publication only

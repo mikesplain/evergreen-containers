@@ -1,0 +1,11 @@
+{
+  "debian": {
+    "12": { "status": "supported", "eol": "2028-06-30" },
+    "13": { "status": "supported", "eol": "2030-08-31" }
+  },
+  "alpine": {
+    "3.20": { "status": "supported", "eol": "2025-05-31" },
+    "3.21": { "status": "supported", "eol": "2025-11-30" },
+    "3.22": { "status": "supported", "eol": "2026-05-31" }
+  }
+}

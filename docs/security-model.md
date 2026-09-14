@@ -75,6 +75,43 @@ then pulls each platform from GHCR by the exact multi-platform digest and
 enforces the reviewed maximum again. GitHub provenance is emitted only after
 that exact-artifact check succeeds.
 
+## Base distribution policy
+
+Every catalog entry declares the expected base distribution and major version
+in its `base` section. The release workflow detects the actual OS from the
+built image by reading `/etc/os-release` and compares it against the catalog
+declaration. A mismatch fails the build.
+
+The detected distribution and version are checked against a maintained
+lifecycle reference (`scripts/base-lifecycle.json`). If the base is in an
+unsupported or end-of-life state, publication fails unless a valid exception
+is configured in the catalog.
+
+An exception is a temporary, time-limited override that requires:
+
+- `owner` — the person responsible for tracking the migration;
+- `reason` — why the EOL base is still in use;
+- `evidence` — a link to the scan or CI run that established the baseline;
+- `migrationIssue` — a tracking issue for the base migration;
+- `expires` — a future date after which the exception no longer applies.
+
+When an exception is active, the workflow logs a warning in the summary but
+allows publication to proceed. Once the expiry date passes, the exception
+becomes invalid and the gate fails again.
+
+**Refreshed packages vs. supported base migration.** Installing the latest
+security patches on an EOL base (e.g., `apt-get update && apt-get upgrade` on
+Debian 11) is a temporary risk reduction. It does not extend the base's
+lifecycle or restore scanner coverage. A supported base migration means
+changing the `FROM` reference to a currently supported release (e.g.,
+`debian:12-slim` or `debian:13-slim`). Only the latter resets the lifecycle
+clock. Weekly rebuilds with refreshed packages on an EOL base are an interim
+measure while the migration issue is resolved.
+
+The lifecycle reference file is hand-curated and updated via pull request.
+The `base-image-freshness` workflow inspects upstream base images on a
+schedule to flag changes that may require a catalog update.
+
 ## Reporting security issues
 
 Do not open a public issue for a suspected compromise, credential exposure, or
