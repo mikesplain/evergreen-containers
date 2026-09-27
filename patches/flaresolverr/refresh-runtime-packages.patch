@@ -1,0 +1,10 @@
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -29,5 +29,6 @@ RUN dpkg -i /libgl1-mesa-dri.deb
+     && dpkg -i /adwaita-icon-theme.deb \
+     # Install dependencies
+     && apt-get update \
++    && apt-get upgrade -y --no-install-recommends \
+     && apt-get install -y --no-install-recommends chromium chromium-common chromium-driver xvfb dumb-init \
+         procps curl vim xauth \
