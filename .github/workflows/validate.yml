@@ -24,7 +24,7 @@ jobs:
         run: node scripts/validate-catalog.mjs
 
       - name: Run tests
-        run: node --test
+        run: node --test --test-concurrency=1
 
       - name: Check workflow action pins
         run: node scripts/check-workflows.mjs
