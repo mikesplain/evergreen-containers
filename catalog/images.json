@@ -15,6 +15,11 @@
         "context": ".",
         "dockerfile": "Dockerfile"
       },
+      "build": {
+        "patches": [
+          "patches/flaresolverr/refresh-runtime-packages.patch"
+        ]
+      },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
       },
