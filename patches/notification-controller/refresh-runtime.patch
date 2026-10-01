@@ -1,7 +1,15 @@
 diff --git a/Dockerfile b/Dockerfile
 --- a/Dockerfile
 +++ b/Dockerfile
-@@ -34,7 +34,7 @@
+@@ -28,13 +28,14 @@
+ 
+ # build
+ ENV CGO_ENABLED=0
+-RUN xx-go build -trimpath -a -o notification-controller main.go
++RUN go get google.golang.org/grpc@v1.83.1 golang.org/x/crypto@v0.56.0 golang.org/x/net@v0.56.0 golang.org/x/text@v0.39.0 \
++    && xx-go build -trimpath -a -o notification-controller main.go
+ 
+ FROM alpine:3.23
  
  ARG TARGETPLATFORM
  
