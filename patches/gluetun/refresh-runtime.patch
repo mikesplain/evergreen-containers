@@ -6,7 +6,7 @@ diff --git a/Dockerfile b/Dockerfile
  COPY cmd/ ./cmd/
  COPY internal/ ./internal/
 +# Pin fixes identified by candidate scans; retain application source.
-+RUN go get golang.org/x/net@v0.56.0 golang.org/x/text@v0.39.0 golang.org/x/crypto@v0.56.0 \
++RUN go get golang.org/x/net@v0.57.0 golang.org/x/text@v0.41.0 golang.org/x/crypto@v0.56.0 \
 +    && go test ./internal/cli/...
  
  FROM --platform=${BUILDPLATFORM} base AS test

@@ -42,7 +42,7 @@ passed on both platforms in run 36935323251.
   (Go standard library, Go grpc, x/net, x/text, x/crypto).
 - notification-controller: zero Critical but five High findings (grpc and
   x/crypto). The follow-up patch pins grpc 1.83.1 and x/crypto 0.56.0, plus
-  x/net 0.56.0 and x/text 0.39.0; fresh native CI must confirm the result.
+  x/net 0.57.0 and x/text 0.41.0; fresh native CI must confirm the result.
 - Gluetun: zero Critical but two High findings (x/net and x/text). Follow-up
   patches pin the fixed Go modules and run CLI unit tests during build; fresh
   native CI must confirm the result.
