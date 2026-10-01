@@ -12,6 +12,6 @@ multidict==6.7.1
 propcache==0.5.2
 psutil==7.2.2
 requests==2.34.2
-urllib3==2.7.0
+urllib3==2.8.0
 websockets==11.0.3
 yarl==1.24.5
