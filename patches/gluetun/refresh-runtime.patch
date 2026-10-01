@@ -1,0 +1,22 @@
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -22,6 +22,9 @@
+ RUN go mod download
+ COPY cmd/ ./cmd/
+ COPY internal/ ./internal/
++# Pin fixes identified by candidate scans; retain application source.
++RUN go get golang.org/x/net@v0.57.0 golang.org/x/text@v0.41.0 golang.org/x/crypto@v0.56.0 \
++    && go test ./internal/cli/...
+ 
+ FROM --platform=${BUILDPLATFORM} base AS test
+ # Note on the go race detector:
+@@ -231,7 +234,7 @@
+ EXPOSE 8000/tcp 8888/tcp 8388/tcp 8388/udp
+ HEALTHCHECK --interval=5s --timeout=5s --start-period=10s --retries=3 CMD /gluetun-entrypoint healthcheck
+ ARG TARGETPLATFORM
+-RUN apk add --no-cache --update -l wget && \
++RUN apk upgrade --no-cache && apk add --no-cache --update -l wget && \
+     apk add --no-cache --update -X "https://dl-cdn.alpinelinux.org/alpine/v3.17/main" openvpn\~2.5 && \
+     mv /usr/sbin/openvpn /usr/sbin/openvpn2.5 && \
+     apk del openvpn && \
