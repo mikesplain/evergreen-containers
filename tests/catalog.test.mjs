@@ -14,29 +14,16 @@ test("the committed catalog is valid", () => {
 });
 
 test("verification expands every platform", () => {
-  const matrix = verificationMatrix(loadCatalog());
-  assert.equal(matrix.include.length, 6);
+  const catalog = loadCatalog();
+  const matrix = verificationMatrix(catalog);
+  assert.equal(matrix.include.length, 14);
   assert.deepEqual(
     matrix.include.map(({ platform }) => platform),
-    [
-      "linux/amd64",
-      "linux/arm64",
-      "linux/amd64",
-      "linux/arm64",
-      "linux/amd64",
-      "linux/arm64"
-    ]
+    catalog.images.flatMap(({ platforms }) => platforms)
   );
   assert.deepEqual(
     matrix.include.map(({ runner }) => runner),
-    [
-      "ubuntu-24.04",
-      "ubuntu-24.04-arm",
-      "ubuntu-24.04",
-      "ubuntu-24.04-arm",
-      "ubuntu-24.04",
-      "ubuntu-24.04-arm"
-    ]
+    Array.from({ length: 7 }, () => ["ubuntu-24.04", "ubuntu-24.04-arm"]).flat()
   );
 });
 
@@ -84,7 +71,7 @@ test("build overrides and patches are rendered for verification", () => {
   const democraticCsi = matrix.include.find(({ name }) => name === "democratic-csi");
 
   assert.match(democraticCsi.buildArgs, /^CTR_VERSION=v2\.3\.3/m);
-  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.74\.4/m);
+  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.75\.1/m);
   assert.equal(democraticCsi.hasOverlays, true);
   assert.equal(democraticCsi.hasPatches, true);
   assert.equal(democraticCsi.modifiedBuild, true);
@@ -96,7 +83,8 @@ test("build overrides and patches are rendered for verification", () => {
     "patches/democratic-csi/node-24.patch",
     "patches/democratic-csi/re2-build-deps.patch",
     "patches/democratic-csi/ctr-official-release.patch",
-    "patches/democratic-csi/npm-production-install.patch"
+    "patches/democratic-csi/npm-production-install.patch",
+    "patches/democratic-csi/refresh-runtime.patch"
   ]);
 });
 

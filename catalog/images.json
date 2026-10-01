@@ -62,7 +62,7 @@
       },
       "build": {
         "args": {
-          "RCLONE_VERSION": "1.74.4",
+          "RCLONE_VERSION": "1.75.1",
           "RESTIC_VERSION": "0.19.1",
           "KOPIA_VERSION": "0.23.1",
           "YQ_VERSION": "v4.53.3",
@@ -76,7 +76,8 @@
           "patches/democratic-csi/node-24.patch",
           "patches/democratic-csi/re2-build-deps.patch",
           "patches/democratic-csi/ctr-official-release.patch",
-          "patches/democratic-csi/npm-production-install.patch"
+          "patches/democratic-csi/npm-production-install.patch",
+          "patches/democratic-csi/refresh-runtime.patch"
         ]
       },
       "output": {
@@ -151,6 +152,205 @@
         "distribution": "debian",
         "version": "13",
         "reviewedAt": "2026-08-01"
+      }
+    },
+    {
+      "name": "notification-controller",
+      "description": "Security-refreshed upstream notification-controller",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/fluxcd/notification-controller:v1.9.4",
+        "sourceRepository": "fluxcd/notification-controller",
+        "sourceTag": "v1.9.4",
+        "sourceCommit": "a1dff35982bf7faf937f38ca2d5219907a6016d3",
+        "version": "v1.9.4",
+        "license": "Apache-2.0",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "build": {
+        "patches": [
+          "patches/notification-controller/refresh-runtime.patch"
+        ]
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/notification-controller"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Await native contract tests, zero fixable High/Critical scans, and maintainer review before publication and home-flux digest adoption."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/notification-controller.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 0,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-10-01",
+        "evidence": "https://github.com/mikesplain/home-flux/actions/runs/36928787969"
+      },
+      "base": {
+        "distribution": "alpine",
+        "version": "3.23",
+        "reviewedAt": "2026-10-01"
+      }
+    },
+    {
+      "name": "homepage",
+      "description": "Security-refreshed upstream homepage",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/gethomepage/homepage:v2.4.0",
+        "sourceRepository": "gethomepage/homepage",
+        "sourceTag": "v2.4.0",
+        "sourceCommit": "6b6926108e35c3902dd23f6bc337162b7289450b",
+        "version": "v2.4.0",
+        "license": "GPL-3.0",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "build": {
+        "args": {
+          "VERSION": "v2.4.0"
+        },
+        "patches": [
+          "patches/homepage/refresh-runtime.patch"
+        ],
+        "overlays": [
+          "overlays/homepage/package.json",
+          "overlays/homepage/pnpm-lock.yaml"
+        ]
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/homepage"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Await native contract tests, zero fixable High/Critical scans, and maintainer review before publication and home-flux digest adoption."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/homepage.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 0,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-10-01",
+        "evidence": "https://github.com/mikesplain/home-flux/actions/runs/36928787969"
+      },
+      "base": {
+        "distribution": "alpine",
+        "version": "3.23",
+        "reviewedAt": "2026-10-01"
+      }
+    },
+    {
+      "name": "headlamp-plugin-flux",
+      "description": "Security-refreshed upstream headlamp-plugin-flux",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/headlamp-k8s/headlamp-plugin-flux:v0.7.0",
+        "sourceRepository": "headlamp-k8s/plugins",
+        "sourceTag": "flux-0.7.0",
+        "sourceCommit": "6e174408707a9ab975bebd3b8b086cc13ae5a821",
+        "version": "v0.7.0",
+        "license": "Apache-2.0",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "build": {
+        "args": {
+          "PLUGIN": "flux",
+          "ENVIRONMENT": "development",
+          "BASE_IMAGE_VERSION": "22-bookworm",
+          "FINAL_IMAGE_VERSION": "3.23"
+        }
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/headlamp-plugin-flux"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Await native contract tests, zero fixable High/Critical scans, and maintainer review before publication and home-flux digest adoption."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/headlamp-plugin-flux.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 0,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-10-01",
+        "evidence": "https://github.com/mikesplain/home-flux/actions/runs/36928787969"
+      },
+      "base": {
+        "distribution": "alpine",
+        "version": "3.23",
+        "reviewedAt": "2026-10-01"
+      }
+    },
+    {
+      "name": "gluetun",
+      "description": "Security-refreshed upstream gluetun",
+      "mode": "source-rebuild",
+      "upstream": {
+        "image": "ghcr.io/qdm12/gluetun:v3.41.3",
+        "sourceRepository": "qdm12/gluetun",
+        "sourceTag": "v3.41.3",
+        "sourceCommit": "3d1e20c5551e9cae1f9d938dc7b7214a6987f27e",
+        "version": "v3.41.3",
+        "license": "MIT",
+        "context": ".",
+        "dockerfile": "Dockerfile"
+      },
+      "build": {
+        "args": {
+          "GO_VERSION": "1.26",
+          "GO_ALPINE_VERSION": "3.23",
+          "VERSION": "v3.41.3"
+        },
+        "patches": [
+          "patches/gluetun/refresh-runtime.patch"
+        ]
+      },
+      "output": {
+        "image": "ghcr.io/mikesplain/evergreen-containers/gluetun"
+      },
+      "release": {
+        "enabled": false,
+        "blockedReason": "Await native contract tests, zero fixable High/Critical scans, and maintainer review before publication and home-flux digest adoption."
+      },
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "test": {
+        "script": "tests/gluetun.sh",
+        "timeoutSeconds": 300
+      },
+      "policy": {
+        "maxFixableHighCritical": 0,
+        "requireNoRegression": true,
+        "reviewedAt": "2026-10-01",
+        "evidence": "https://github.com/mikesplain/home-flux/actions/runs/36928787969"
+      },
+      "base": {
+        "distribution": "alpine",
+        "version": "3.22",
+        "reviewedAt": "2026-10-01"
       }
     }
   ]

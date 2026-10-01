@@ -1,0 +1,12 @@
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -34,7 +34,7 @@
+ 
+ ARG TARGETPLATFORM
+ 
+-RUN apk --no-cache add ca-certificates \
++RUN apk --no-cache upgrade && apk --no-cache add ca-certificates \
+   && update-ca-certificates
+ 
+ COPY --from=builder /workspace/notification-controller /usr/local/bin/

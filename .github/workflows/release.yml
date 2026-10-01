@@ -26,6 +26,11 @@ on:
 permissions:
   contents: read
 
+# Explicit bash enables pipefail: policy failures must not be masked by tee.
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: weekly-releases
   cancel-in-progress: false
@@ -206,6 +211,7 @@ jobs:
             | tee reports/base-lifecycle.json
 
       - name: Upload scan evidence
+        if: ${{ always() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: scan-${{ matrix.name }}-${{ matrix.platformSlug }}
