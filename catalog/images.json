@@ -223,7 +223,8 @@
         ],
         "overlays": [
           "overlays/homepage/package.json",
-          "overlays/homepage/pnpm-lock.yaml"
+          "overlays/homepage/pnpm-lock.yaml",
+          "overlays/homepage/pnpm-workspace.yaml"
         ]
       },
       "output": {

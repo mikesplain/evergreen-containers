@@ -19,5 +19,7 @@ test("new home-flux candidates are tested but never published before review", ()
   assert.equal(homepage.dependencies.next, "16.3.6");
   const lock = fs.readFileSync(new URL("../overlays/homepage/pnpm-lock.yaml", import.meta.url), "utf8");
   assert.match(lock, /next:\n\s+specifier: 16\.3\.6\n\s+version: 16\.3\.6/);
+  assert.match(lock, /undici@8\.10\.2/);
+  assert.match(lock, /'@grpc\/grpc-js@1\.14\.5'/);
   assert.equal(catalog.images.find(({ name }) => name === "democratic-csi").policy.maxFixableHighCritical, 9);
 });

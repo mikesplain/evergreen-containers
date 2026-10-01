@@ -28,6 +28,37 @@ enables pipefail for candidate policy, lifecycle policy and published-digest
 policy. The regression test fails on the original workflow and passes with the
 fix. Failure evidence is retained even when a candidate is rejected.
 
+## Candidate CI evidence and remaining blockers
+
+[Initial native CI](https://github.com/mikesplain/evergreen-containers/actions/runs/36934991699)
+built and contract-tested all proposed images on both architectures. Homepage's
+initial test lacked writable configuration; the corrected test subsequently
+passed on both platforms in run 36935323251.
+
+- Headlamp Flux plugin: zero fixable High/Critical findings on amd64 and arm64.
+- democratic-csi: zero Critical but 35 fixable High findings on each platform,
+  above the unchanged budget of 9. Remaining npm axios/grpc findings are covered
+  by existing PRs #38/#39; bundled Go tools also require newer upstream builds
+  (Go standard library, Go grpc, x/net, x/text, x/crypto).
+- notification-controller: zero Critical but five High findings (grpc and
+  x/crypto). The follow-up patch pins grpc 1.83.1 and x/crypto 0.56.0, plus
+  x/net 0.56.0 and x/text 0.39.0; fresh native CI must confirm the result.
+- Gluetun: zero Critical but two High findings (x/net and x/text). Follow-up
+  patches pin the fixed Go modules and run CLI unit tests during build; fresh
+  native CI must confirm the result.
+- Homepage: corrected health/page/version contracts pass, Next.js Critical is
+  resolved; 14 High findings remain in the first scanned candidate. Follow-up
+  packaging removes unused runtime package managers and locks undici 8.10.2
+  and grpc-js 1.14.5. Fresh native CI must confirm zero findings.
+- Existing Sockpuppet Browser fails its zero budget on urllib3 2.7.0 (two High
+  findings), covered by existing PR #37; not duplicated here.
+- Existing Flaresolverr arm64 fails its budget with 153 findings, predominantly
+  distro Chromium; amd64 has three findings and passes its budget of 12. This
+  pre-existing architecture-specific blocker is surfaced, not accepted away.
+
+The original six-image static scan is not fully remediated in production.
+No new images are published from PR jobs; promotion remains review-gated.
+
 ## Deployment sequencing
 
 Never point home-flux at unbuilt or unpublished Evergreen tags. First obtain
