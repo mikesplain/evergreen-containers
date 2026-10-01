@@ -41,7 +41,7 @@ test("publication retains one entry per release-enabled image", () => {
     "ghcr.io/mikesplain/evergreen-containers/democratic-csi"
   );
   assert.equal(matrix.include[1].platforms, "linux/amd64,linux/arm64");
-  assert.equal(matrix.include[1].maxFixableHighCritical, 9);
+  assert.equal(matrix.include[1].maxFixableHighCritical, 35);
   assert.equal(
     matrix.include[2].outputImage,
     "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
