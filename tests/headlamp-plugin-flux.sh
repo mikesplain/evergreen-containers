@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${IMAGE:?IMAGE must identify the locally built image}"
-# Exercise the exact init-container copy/chown contract used by home-flux.
+# Exercise the upstream init-container plugin copy/chown contract.
 docker run --rm --network none --user 0 --entrypoint sh "$IMAGE" -ec '
   mkdir -p /build/plugins
   cp -r /plugins/* /build/plugins/

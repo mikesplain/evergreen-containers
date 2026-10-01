@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 import { loadCatalog, publicationMatrix, verificationMatrix } from "../scripts/catalog.mjs";
 
-test("new home-flux candidates are tested but never published before review", () => {
+test("new image candidates are tested but never published before review", () => {
   const catalog = loadCatalog();
   const names = ["notification-controller", "homepage", "headlamp-plugin-flux", "gluetun"];
   const published = new Set(publicationMatrix(catalog).include.map(({ name }) => name));
