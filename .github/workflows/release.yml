@@ -32,7 +32,8 @@ defaults:
     shell: bash
 
 concurrency:
-  group: weekly-releases
+  # Serialize publication, but let non-publishing PR verification run independently.
+  group: ${{ github.event_name == 'pull_request' && github.ref || 'weekly-releases' }}
   cancel-in-progress: false
 
 jobs:

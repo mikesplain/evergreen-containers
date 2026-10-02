@@ -5,6 +5,10 @@ set -euo pipefail
 : "${IMAGE:?IMAGE must identify the locally built image}"
 : "${TIMEOUT_SECONDS:=240}"
 
+# Check every vendored copy and the bundled driver on each native CI platform.
+docker run --rm --interactive --entrypoint python "$IMAGE" \
+  < "$(dirname "$0")/flaresolverr-packaging.py"
+
 container_name="evergreen-flaresolverr-${RANDOM}"
 
 cleanup() {
