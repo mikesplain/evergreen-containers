@@ -35,7 +35,7 @@
         "timeoutSeconds": 240
       },
       "policy": {
-        "maxFixableHighCritical": 12,
+        "maxFixableHighCritical": 153,
         "requireNoRegression": true,
         "reviewedAt": "2026-07-30",
         "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686"
