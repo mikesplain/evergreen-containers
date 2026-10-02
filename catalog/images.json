@@ -35,10 +35,10 @@
         "timeoutSeconds": 240
       },
       "policy": {
-        "maxFixableHighCritical": 153,
+        "maxFixableHighCritical": 1,
         "requireNoRegression": true,
-        "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686"
+        "reviewedAt": "2026-10-02",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/37012792026"
       },
       "base": {
         "distribution": "debian",
