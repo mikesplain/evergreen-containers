@@ -9,7 +9,7 @@ diff --git a/Dockerfile b/Dockerfile
 +RUN go get google.golang.org/grpc@v1.83.2 golang.org/x/crypto@v0.56.0 golang.org/x/net@v0.58.0 golang.org/x/text@v0.41.0 \
 +    && xx-go build -trimpath -a -o notification-controller main.go
  
- FROM alpine:3.23
+ FROM alpine:3.24
  
  ARG TARGETPLATFORM
  

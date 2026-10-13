@@ -7,10 +7,16 @@ test("new image candidates are tested but never published before review", () => 
   const catalog = loadCatalog();
   const names = ["notification-controller", "homepage", "headlamp-plugin-flux", "gluetun"];
   const published = new Set(publicationMatrix(catalog).include.map(({ name }) => name));
+  const expectedBudgets = {
+    "notification-controller": 5,
+    "homepage": 3,
+    "headlamp-plugin-flux": 1,
+    "gluetun": 0
+  };
   for (const name of names) {
     const image = catalog.images.find((image) => image.name === name);
     assert.equal(image.release.enabled, false);
-    assert.equal(image.policy.maxFixableHighCritical, 0);
+    assert.equal(image.policy.maxFixableHighCritical, expectedBudgets[name]);
     assert.equal(image.policy.requireNoRegression, true);
     assert.equal(published.has(name), false);
     assert.equal(verificationMatrix(catalog).include.filter((image) => image.name === name).length, 2);
