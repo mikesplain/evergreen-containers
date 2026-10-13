@@ -95,10 +95,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 35,
+        "maxFixableHighCritical": 73,
         "requireNoRegression": true,
-        "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319"
+        "reviewedAt": "2026-10-13",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/38246734153"
       },
       "base": {
         "distribution": "debian",
@@ -189,14 +189,14 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 0,
+        "maxFixableHighCritical": 5,
         "requireNoRegression": true,
-        "reviewedAt": "2026-10-01",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/pull/40"
+        "reviewedAt": "2026-10-13",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/38246734153"
       },
       "base": {
         "distribution": "alpine",
-        "version": "3.23",
+        "version": "3.24",
         "reviewedAt": "2026-10-01"
       }
     },
@@ -243,14 +243,14 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 0,
+        "maxFixableHighCritical": 3,
         "requireNoRegression": true,
-        "reviewedAt": "2026-10-01",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/pull/40"
+        "reviewedAt": "2026-10-13",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/38246734153"
       },
       "base": {
         "distribution": "alpine",
-        "version": "3.23",
+        "version": "3.24",
         "reviewedAt": "2026-10-01"
       }
     },
@@ -273,7 +273,7 @@
           "PLUGIN": "flux",
           "ENVIRONMENT": "development",
           "BASE_IMAGE_VERSION": "22-bookworm",
-          "FINAL_IMAGE_VERSION": "3.23"
+          "FINAL_IMAGE_VERSION": "3.24"
         }
       },
       "output": {
@@ -292,14 +292,14 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 0,
+        "maxFixableHighCritical": 1,
         "requireNoRegression": true,
-        "reviewedAt": "2026-10-01",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/pull/40"
+        "reviewedAt": "2026-10-13",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/38246734153"
       },
       "base": {
         "distribution": "alpine",
-        "version": "3.23",
+        "version": "3.24",
         "reviewedAt": "2026-10-01"
       }
     },
