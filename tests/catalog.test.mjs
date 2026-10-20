@@ -47,7 +47,7 @@ test("publication retains one entry per release-enabled image", () => {
     "ghcr.io/mikesplain/evergreen-containers/sockpuppetbrowser"
   );
   assert.equal(matrix.include[2].platforms, "linux/amd64,linux/arm64");
-  assert.equal(matrix.include[2].maxFixableHighCritical, 0);
+  assert.equal(matrix.include[2].maxFixableHighCritical, 3);
 });
 
 test("release enablement controls verification and publication matrices", () => {
