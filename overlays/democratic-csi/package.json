@@ -27,7 +27,7 @@
     "bunyan": "^1.8.15",
     "crc": "^4.3.2",
     "fs-extra": "^11.1.0",
-    "handlebars": "^4.7.7",
+    "handlebars": "^4.7.10",
     "js-yaml": "^4.3.2",
     "lodash": "^4.17.21",
     "lru-cache": "^7.4.0",
