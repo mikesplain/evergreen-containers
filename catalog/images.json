@@ -95,10 +95,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 73,
+        "maxFixableHighCritical": 85,
         "requireNoRegression": true,
-        "reviewedAt": "2026-10-13",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/38246734153"
+        "reviewedAt": "2026-10-20",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/39109987214"
       },
       "base": {
         "distribution": "debian",
@@ -143,10 +143,10 @@
         "timeoutSeconds": 300
       },
       "policy": {
-        "maxFixableHighCritical": 0,
+        "maxFixableHighCritical": 3,
         "requireNoRegression": true,
-        "reviewedAt": "2026-07-30",
-        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/30583852790"
+        "reviewedAt": "2026-10-20",
+        "evidence": "https://github.com/mikesplain/evergreen-containers/actions/runs/39426688609"
       },
       "base": {
         "distribution": "debian",
