@@ -19,5 +19,5 @@ until curl --fail --silent http://127.0.0.1:3000/api/healthcheck >/dev/null; do
   sleep 2
 done
 curl --fail --silent http://127.0.0.1:3000/ >/dev/null
-docker exec "$name" node -e 'if (require("next/package.json").version !== "16.3.6") process.exit(1)'
+docker exec "$name" node -e 'if (require("next/package.json").version !== "16.3.8") process.exit(1)'
 echo 'Homepage health, page and patched Next.js contract passed'
