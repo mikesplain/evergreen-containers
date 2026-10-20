@@ -6,11 +6,11 @@
       "description": "Proxy server that solves Cloudflare challenges with Chromium",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "ghcr.io/flaresolverr/flaresolverr:v3.5.0",
+        "image": "ghcr.io/flaresolverr/flaresolverr:v3.5.2",
         "sourceRepository": "FlareSolverr/FlareSolverr",
-        "sourceTag": "v3.5.0",
-        "sourceCommit": "4ca91a24f87a73f963e1d6610cbf3b9f01c1cc1b",
-        "version": "v3.5.0",
+        "sourceTag": "v3.5.2",
+        "sourceCommit": "93125d6ea6956906c8dfa29e169b2dc67d993dc3",
+        "version": "v3.5.2",
         "license": "MIT",
         "context": ".",
         "dockerfile": "Dockerfile"
@@ -205,11 +205,11 @@
       "description": "Security-refreshed upstream homepage",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "ghcr.io/gethomepage/homepage:v2.4.0",
+        "image": "ghcr.io/gethomepage/homepage:v2.6.0",
         "sourceRepository": "gethomepage/homepage",
-        "sourceTag": "v2.4.0",
-        "sourceCommit": "6b6926108e35c3902dd23f6bc337162b7289450b",
-        "version": "v2.4.0",
+        "sourceTag": "v2.6.0",
+        "sourceCommit": "51cc1684f9f34a7877ed462b8f94c9cc687b4dde",
+        "version": "v2.6.0",
         "license": "GPL-3.0",
         "context": ".",
         "dockerfile": "Dockerfile"
