@@ -39,5 +39,7 @@ jobs:
           git checkout -b automation/upstream-release-updates
           git add catalog/images.json
           git commit -m "chore: update pinned upstream releases"
+          # checkout uses persist-credentials: false, so inject the token to authenticate the push
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}"
           git push --force-with-lease origin automation/upstream-release-updates
           gh pr create --base main --head automation/upstream-release-updates --title "chore: update pinned upstream releases" --body "Automated upstream release update; normal candidate build, contract, scan, and publication gates apply."
