@@ -16,6 +16,9 @@
         "dockerfile": "Dockerfile"
       },
       "build": {
+        "overlays": [
+          "overlays/flaresolverr/requirements.txt"
+        ],
         "patches": [
           "patches/flaresolverr/refresh-runtime-packages.patch"
         ]
