@@ -19,5 +19,5 @@ onlyBuiltDependencies:
   - sharp
 
 overrides:
-  undici: 8.10.2
+  undici: 8.12.2
   "@grpc/grpc-js": 1.14.5
