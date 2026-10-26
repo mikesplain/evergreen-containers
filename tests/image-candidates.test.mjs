@@ -27,6 +27,6 @@ test("new image candidates are tested but never published before review", () => 
   assert.match(lock, /next:\n\s+specifier: 16\.3\.8\n\s+version: 16\.3\.8/);
   assert.match(lock, /undici@8\.10\.2/);
   assert.match(lock, /'@grpc\/grpc-js@1\.14\.5'/);
-  assert.ok(fs.readFileSync(new URL("../patches/notification-controller/refresh-runtime.patch", import.meta.url), "utf8").includes("grpc@v1.83.2"));
+  assert.ok(fs.readFileSync(new URL("../patches/notification-controller/refresh-runtime.patch", import.meta.url), "utf8").includes("apk --no-cache upgrade"));
   assert.equal(catalog.images.find(({ name }) => name === "flaresolverr").policy.maxFixableHighCritical, 1);
 });
