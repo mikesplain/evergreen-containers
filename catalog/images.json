@@ -162,11 +162,11 @@
       "description": "Security-refreshed upstream notification-controller",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "ghcr.io/fluxcd/notification-controller:v1.9.4",
+        "image": "ghcr.io/fluxcd/notification-controller:v1.10.0",
         "sourceRepository": "fluxcd/notification-controller",
-        "sourceTag": "v1.9.4",
-        "sourceCommit": "a1dff35982bf7faf937f38ca2d5219907a6016d3",
-        "version": "v1.9.4",
+        "sourceTag": "v1.10.0",
+        "sourceCommit": "08d8de010a16def89c1195b9360ceb1bd0042f70",
+        "version": "v1.10.0",
         "license": "Apache-2.0",
         "context": ".",
         "dockerfile": "Dockerfile"
@@ -208,11 +208,11 @@
       "description": "Security-refreshed upstream homepage",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "ghcr.io/gethomepage/homepage:v2.6.0",
+        "image": "ghcr.io/gethomepage/homepage:v2.7.0",
         "sourceRepository": "gethomepage/homepage",
-        "sourceTag": "v2.6.0",
-        "sourceCommit": "51cc1684f9f34a7877ed462b8f94c9cc687b4dde",
-        "version": "v2.6.0",
+        "sourceTag": "v2.7.0",
+        "sourceCommit": "2e5f10134ae3961bb936d3e7c441f9a1f4a4bf4f",
+        "version": "v2.7.0",
         "license": "GPL-3.0",
         "context": ".",
         "dockerfile": "Dockerfile"
