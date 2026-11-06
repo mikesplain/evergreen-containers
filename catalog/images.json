@@ -65,7 +65,7 @@
       },
       "build": {
         "args": {
-          "RCLONE_VERSION": "1.75.1",
+          "RCLONE_VERSION": "1.76.0",
           "RESTIC_VERSION": "0.19.1",
           "KOPIA_VERSION": "0.23.1",
           "YQ_VERSION": "v4.53.3",
