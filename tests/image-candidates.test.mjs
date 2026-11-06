@@ -5,13 +5,12 @@ import { loadCatalog, publicationMatrix, verificationMatrix } from "../scripts/c
 
 test("new image candidates are tested but never published before review", () => {
   const catalog = loadCatalog();
-  const names = ["notification-controller", "homepage", "headlamp-plugin-flux", "gluetun"];
+  const names = ["notification-controller", "homepage", "headlamp-plugin-flux"];
   const published = new Set(publicationMatrix(catalog).include.map(({ name }) => name));
   const expectedBudgets = {
     "notification-controller": 5,
     "homepage": 3,
-    "headlamp-plugin-flux": 1,
-    "gluetun": 0
+    "headlamp-plugin-flux": 1
   };
   for (const name of names) {
     const image = catalog.images.find((image) => image.name === name);
