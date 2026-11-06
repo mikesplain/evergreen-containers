@@ -29,7 +29,7 @@ test("verification expands every platform", () => {
 
 test("publication retains one entry per release-enabled image", () => {
   const matrix = publicationMatrix(loadCatalog());
-  assert.equal(matrix.include.length, 3);
+  assert.equal(matrix.include.length, 4);
   assert.equal(
     matrix.include[0].outputImage,
     "ghcr.io/mikesplain/evergreen-containers/flaresolverr"
@@ -48,6 +48,12 @@ test("publication retains one entry per release-enabled image", () => {
   );
   assert.equal(matrix.include[2].platforms, "linux/amd64,linux/arm64");
   assert.equal(matrix.include[2].maxFixableHighCritical, 3);
+  assert.equal(
+    matrix.include[3].outputImage,
+    "ghcr.io/mikesplain/evergreen-containers/gluetun"
+  );
+  assert.equal(matrix.include[3].platforms, "linux/amd64,linux/arm64");
+  assert.equal(matrix.include[3].maxFixableHighCritical, 0);
 });
 
 test("release enablement controls verification and publication matrices", () => {

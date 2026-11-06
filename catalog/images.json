@@ -334,8 +334,7 @@
         "image": "ghcr.io/mikesplain/evergreen-containers/gluetun"
       },
       "release": {
-        "enabled": false,
-        "blockedReason": "Await native contract tests, zero fixable High/Critical scans, and maintainer review before publication."
+        "enabled": true
       },
       "platforms": [
         "linux/amd64",
