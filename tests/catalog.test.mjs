@@ -71,7 +71,7 @@ test("build overrides and patches are rendered for verification", () => {
   const democraticCsi = matrix.include.find(({ name }) => name === "democratic-csi");
 
   assert.match(democraticCsi.buildArgs, /^CTR_VERSION=v2\.3\.3/m);
-  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.75\.1/m);
+  assert.match(democraticCsi.buildArgs, /^RCLONE_VERSION=1\.76\.0/m);
   assert.equal(democraticCsi.hasOverlays, true);
   assert.equal(democraticCsi.hasPatches, true);
   assert.equal(democraticCsi.modifiedBuild, true);
