@@ -114,11 +114,11 @@
       "description": "Chrome DevTools Protocol proxy for browser automation",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "docker.io/dgtlmoon/sockpuppetbrowser:0.0.3",
+        "image": "docker.io/dgtlmoon/sockpuppetbrowser:0.0.5",
         "sourceRepository": "dgtlmoon/sockpuppetbrowser",
-        "sourceTag": "0.0.3",
-        "sourceCommit": "03fea0bcaf7ceb29b6c8f3b205268e565fd2f0a2",
-        "version": "0.0.3",
+        "sourceTag": "0.0.5",
+        "sourceCommit": "ee42756ef98ef60b9e8da6fec121f8b926d45056",
+        "version": "0.0.5",
         "license": "Apache-2.0",
         "context": ".",
         "dockerfile": "Dockerfile"
@@ -208,11 +208,11 @@
       "description": "Security-refreshed upstream homepage",
       "mode": "source-rebuild",
       "upstream": {
-        "image": "ghcr.io/gethomepage/homepage:v2.7.0",
+        "image": "ghcr.io/gethomepage/homepage:v2.8.0",
         "sourceRepository": "gethomepage/homepage",
-        "sourceTag": "v2.7.0",
-        "sourceCommit": "2e5f10134ae3961bb936d3e7c441f9a1f4a4bf4f",
-        "version": "v2.7.0",
+        "sourceTag": "v2.8.0",
+        "sourceCommit": "08a0c1df566464bfdb327f3fd8f1f5a058d56640",
+        "version": "v2.8.0",
         "license": "GPL-3.0",
         "context": ".",
         "dockerfile": "Dockerfile"
