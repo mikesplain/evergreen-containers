@@ -21,9 +21,9 @@ test("new image candidates are tested but never published before review", () => 
     assert.equal(verificationMatrix(catalog).include.filter((image) => image.name === name).length, 2);
   }
   const homepage = JSON.parse(fs.readFileSync(new URL("../overlays/homepage/package.json", import.meta.url)));
-  assert.equal(homepage.dependencies.next, "16.4.1");
+  assert.equal(homepage.dependencies.next, "16.4.5");
   const lock = fs.readFileSync(new URL("../overlays/homepage/pnpm-lock.yaml", import.meta.url), "utf8");
-  assert.match(lock, /next:\n\s+specifier: 16\.4\.1\n\s+version: 16\.4\.1/);
+  assert.match(lock, /next:\n\s+specifier: 16\.4\.5\n\s+version: 16\.4\.5/);
   assert.match(lock, /undici@8\.12\.2/);
   assert.match(lock, /'@grpc\/grpc-js@1\.14\.5'/);
   assert.ok(fs.readFileSync(new URL("../patches/notification-controller/refresh-runtime.patch", import.meta.url), "utf8").includes("apk --no-cache upgrade"));
