@@ -40,7 +40,7 @@ upstream upgrades as separate responsibilities.
 | --- | --- | --- | --- | --- |
 | Flaresolverr | Exact-source rebuild | [`v3.5.0`](https://github.com/FlareSolverr/FlareSolverr/releases/tag/v3.5.0) | `linux/amd64`, `linux/arm64` | [Verified: 12 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30560406686) |
 | democratic-csi | Exact-source rebuild | [`v1.9.5`](https://github.com/democratic-csi/democratic-csi/tree/v1.9.5) | `linux/amd64`, `linux/arm64` | [Verified: 9 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30582663319) |
-| Sockpuppet Browser | Exact-source rebuild | [`0.0.3`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.3) | `linux/amd64`, `linux/arm64` | [Verified: 0 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30583852790) |
+| Sockpuppet Browser | Exact-source rebuild | [`0.0.5`](https://github.com/dgtlmoon/sockpuppetbrowser/releases/tag/0.0.5) | `linux/amd64`, `linux/arm64` | [Verified: 0 High, 0 Critical](https://github.com/mikesplain/evergreen-containers/actions/runs/30583852790) |
 
 Catalog entries live in [`catalog/images.json`](catalog/images.json). The
 automation implements pinned-source rebuilds using the upstream project's
@@ -55,11 +55,14 @@ reports beyond its standard-support lifecycle boundary. Weekly rebuilds reduce
 available package risk but are an interim control; [issue #7](https://github.com/mikesplain/evergreen-containers/issues/7)
 tracks lifecycle enforcement and migration to a supported base.
 
-Sockpuppet Browser's current upstream Dockerfile pins
-`zenika/alpine-chrome:119-with-playwright`. Candidate automation measures and
-tests that exact source, but the image must not be promoted for consumption
-until its Chromium base is updated and the resulting vulnerability budget is
-reviewed.
+Sockpuppet Browser's upstream Dockerfile now tracks Debian slim plus Google
+Chrome Stable, and its own package set no longer needs a downstream Chromium
+swap. The reviewed patch keeps only the packaging refresh that upstream cannot
+override: it re-pins the base to `debian:trixie-slim` so the built image matches
+the catalog's Debian 13 lifecycle expectation, upgrades the packages already
+present in the slim base before adding Chrome, pins the runtime `chrome` user to
+uid/gid 1000 that the contract test's `--user 1000:1000` requires, and refreshes
+the `pip` and `setuptools` wheels inside the virtualenv.
 
 ## Release model
 
