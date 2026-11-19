@@ -1,0 +1,15 @@
+diff --git a/Dockerfile b/Dockerfile
+index 4f04c15d..a1a45435 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -48,6 +48,10 @@ RUN echo "Extracting plugin $PLUGIN..."; \
+     npx --no-install headlamp-plugin extract . /headlamp-plugins/build/${PLUGIN}
+ 
+ FROM alpine:${FINAL_IMAGE_VERSION} AS final
++# Adopt the security updates published to the Alpine repository after this base
++# snapshot was built: the plugin copy runs as an init container on every node, so it
++# must not ship package fixes the repository already carries.
++RUN apk update && apk --no-cache upgrade
+ 
+ # Create a non-root user and group
+ RUN addgroup -S headlamp && adduser -S headlamp -G headlamp

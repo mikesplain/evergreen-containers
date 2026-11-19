@@ -277,7 +277,10 @@
           "ENVIRONMENT": "development",
           "BASE_IMAGE_VERSION": "22-bookworm",
           "FINAL_IMAGE_VERSION": "3.24"
-        }
+        },
+        "patches": [
+          "patches/headlamp-plugin-flux/refresh-runtime.patch"
+        ]
       },
       "output": {
         "image": "ghcr.io/mikesplain/evergreen-containers/headlamp-plugin-flux"
