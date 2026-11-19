@@ -27,5 +27,14 @@ test("new image candidates are tested but never published before review", () => 
   assert.match(lock, /undici@8\.12\.2/);
   assert.match(lock, /'@grpc\/grpc-js@1\.14\.5'/);
   assert.ok(fs.readFileSync(new URL("../patches/notification-controller/refresh-runtime.patch", import.meta.url), "utf8").includes("apk --no-cache upgrade"));
+  const headlampPatch = fs.readFileSync(
+    new URL("../patches/headlamp-plugin-flux/refresh-runtime.patch", import.meta.url),
+    "utf8"
+  );
+  assert.ok(headlampPatch.includes("apk update && apk --no-cache upgrade"));
+  assert.equal(
+    catalog.images.find(({ name }) => name === "headlamp-plugin-flux").build.patches.length,
+    1
+  );
   assert.equal(catalog.images.find(({ name }) => name === "flaresolverr").policy.maxFixableHighCritical, 1);
 });
