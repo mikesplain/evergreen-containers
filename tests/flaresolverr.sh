@@ -49,11 +49,5 @@ response=$(
     http://127.0.0.1:8191/v1
 )
 
-RESPONSE="$response" node -e '
-  const response = JSON.parse(process.env.RESPONSE);
-  if (response.status !== "ok" || response.solution?.status !== 200) {
-    console.error(response);
-    process.exit(1);
-  }
-  console.log(`Flaresolverr contract passed: ${response.message}`);
-'
+# Check target content as well: upstream synthesizes solution.status=200.
+RESPONSE="$response" node "$(dirname "$0")/flaresolverr-response.mjs"
