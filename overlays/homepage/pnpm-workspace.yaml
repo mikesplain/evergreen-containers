@@ -21,3 +21,4 @@ onlyBuiltDependencies:
 overrides:
   undici: 8.12.2
   "@grpc/grpc-js": 1.14.5
+  fast-xml-parser: ^5.12.0
